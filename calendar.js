@@ -52,7 +52,7 @@ let currentYear = DECIMAL_YEAR;
 document.addEventListener('DOMContentLoaded', () => {
     initializeCalendar();
     updateDecimalTime();
-    setInterval(updateDecimalTime, 86.4); // Update ~1000 times per decimal second
+    setInterval(updateDecimalTime, 864); // Update approximately once per decimal second (~0.864 standard seconds)
     
     document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
     document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
@@ -253,9 +253,10 @@ function updateDecimalTime() {
 
 // Setup proximity-based hover effect
 function setupProximityHoverEffect() {
+    const calendarCard = document.querySelector('.calendar-card');
     const calendarDays = document.querySelectorAll('.calendar-day');
     
-    document.addEventListener('mousemove', (e) => {
+    calendarCard.addEventListener('mousemove', (e) => {
         calendarDays.forEach(day => {
             const rect = day.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
@@ -283,8 +284,8 @@ function setupProximityHoverEffect() {
         });
     });
     
-    // Reset on mouse leave
-    document.addEventListener('mouseleave', () => {
+    // Reset on mouse leave calendar card
+    calendarCard.addEventListener('mouseleave', () => {
         calendarDays.forEach(day => {
             day.style.transform = '';
             day.style.filter = '';
