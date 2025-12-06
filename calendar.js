@@ -11,16 +11,16 @@ const EXTRA_DAYS_LEAP = 6;
 const SPRING_EQUINOX_GREGORIAN = new Date(new Date().getFullYear(), 2, 20); // March 20
 
 const MONTH_NAMES = [
-    'Primember',
-    'Secember',
-    'Terember',
-    'Quattember',
-    'Quintember',
-    'Sextember',
-    'September',
-    'October',
-    'November',
-    'December'
+    'PRIMEMBER',
+    'SECEMBER',
+    'TEREMBER',
+    'QUATTEMBER',
+    'QUINTEMBER',
+    'SEXTEMBER',
+    'SEPTEMBER',
+    'OCTOBER',
+    'NOVEMBER',
+    'DECEMBER'
 ];
 
 const DAY_NAMES = [
@@ -34,6 +34,8 @@ const DAY_NAMES = [
     'Octodi',
     'Novedi'
 ];
+
+const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV'];
 
 const EXTRA_DAY_NAMES = [
     'Primdia',
@@ -112,12 +114,11 @@ function renderDayNames() {
     
     DAY_NAMES.forEach((dayName, index) => {
         const dayElement = document.createElement('div');
-        dayElement.className = 'day-name';
         
-        // Style the day name with first letter capitalized and rest in subscript style
+        // Style the day name with large first letter and small rest
         const firstLetter = dayName.charAt(0);
-        const restOfName = dayName.slice(1);
-        dayElement.innerHTML = `<span class="day-name-first">${firstLetter}</span><span class="day-name-rest">${restOfName}</span>`;
+        const restOfName = dayName.slice(1).toLowerCase();
+        dayElement.innerHTML = `<span style="font-size: 1.5rem;">${firstLetter}</span><span style="font-size: 0.75rem;">${restOfName}</span>`;
         
         dayNamesContainer.appendChild(dayElement);
     });
@@ -126,11 +127,13 @@ function renderDayNames() {
 // Render calendar for current month
 function renderCalendar() {
     const monthNameElement = document.getElementById('monthName');
+    const monthNumberElement = document.getElementById('monthNumber');
     const yearDisplayElement = document.getElementById('yearDisplay');
     const calendarGrid = document.getElementById('calendarGrid');
     const extraDaysContainer = document.getElementById('extraDays');
     
     monthNameElement.textContent = MONTH_NAMES[currentMonth];
+    monthNumberElement.textContent = ' ' + (currentMonth + 1);
     yearDisplayElement.textContent = currentYear;
     
     calendarGrid.innerHTML = '';
@@ -143,65 +146,63 @@ function renderCalendar() {
         const weekRow = document.createElement('div');
         weekRow.className = 'week-row';
         
+        // Add roman numeral
+        const romanNumeral = document.createElement('div');
+        romanNumeral.textContent = ROMAN_NUMERALS[week];
+        weekRow.appendChild(romanNumeral);
+        
+        // Create day container
+        const daysContainer = document.createElement('div');
+        daysContainer.className = 'days-grid';
+        
         for (let dayInWeek = 0; dayInWeek < DAYS_PER_WEEK; dayInWeek++) {
             const dayNumber = week * DAYS_PER_WEEK + dayInWeek + 1;
             const dayElement = createDayElement(dayNumber, currentDate);
-            weekRow.appendChild(dayElement);
+            daysContainer.appendChild(dayElement);
         }
         
+        weekRow.appendChild(daysContainer);
         calendarGrid.appendChild(weekRow);
     }
     
     // Render extra days (only for December)
     if (currentMonth === 9) {
         const extraDaysCount = isLeapYear() ? EXTRA_DAYS_LEAP : EXTRA_DAYS_NORMAL;
-        const extraDaysTitle = document.createElement('div');
-        extraDaysTitle.className = 'extra-days-title';
-        extraDaysTitle.textContent = 'Days Outside of Time';
-        extraDaysContainer.appendChild(extraDaysTitle);
         
-        const extraDaysGrid = document.createElement('div');
-        extraDaysGrid.className = 'extra-days-grid';
+        const extraDaysRow = document.createElement('div');
+        extraDaysRow.className = 'extra-days-row';
         
         for (let i = 0; i < extraDaysCount; i++) {
             const extraDayElement = document.createElement('div');
-            extraDayElement.className = 'extra-day calendar-day';
+            extraDayElement.className = 'extra-day-item';
             
             const isCurrentExtraDay = currentDate.isExtraDay && currentDate.extraDayIndex === i;
             if (isCurrentExtraDay) {
-                extraDayElement.classList.add('current-extra-day');
+                extraDayElement.classList.add('current');
             }
             
-            extraDayElement.innerHTML = `
-                <div class="extra-day-number">${i + 1}</div>
-                <div class="extra-day-name">${EXTRA_DAY_NAMES[i]}</div>
-            `;
-            
-            extraDaysGrid.appendChild(extraDayElement);
+            extraDayElement.textContent = i + 1;
+            extraDaysRow.appendChild(extraDayElement);
         }
         
-        extraDaysContainer.appendChild(extraDaysGrid);
+        extraDaysContainer.appendChild(extraDaysRow);
     }
-    
-    setupProximityHoverEffect();
 }
 
 // Create a day element
 function createDayElement(dayNumber, currentDate) {
     const dayElement = document.createElement('div');
-    dayElement.className = 'calendar-day';
+    dayElement.className = 'day-number';
     
     const isCurrentDay = !currentDate.isExtraDay && 
                          currentDate.month === currentMonth && 
                          currentDate.day === dayNumber;
     
     if (isCurrentDay) {
-        dayElement.classList.add('current-day');
+        dayElement.classList.add('current');
     }
     
-    dayElement.innerHTML = `
-        <div class="calendar-day-number">${dayNumber}</div>
-    `;
+    dayElement.textContent = dayNumber;
     
     return dayElement;
 }
@@ -225,15 +226,6 @@ function changeMonth(delta) {
 function updateDecimalTime() {
     const now = new Date();
     
-    // Regular time display
-    const regularTimeElement = document.getElementById('regularTime');
-    regularTimeElement.textContent = now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit',
-        hour12: false 
-    });
-    
     // Convert to decimal time
     const totalSecondsInDay = 24 * 60 * 60; // 86400
     const currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds() + now.getMilliseconds() / 1000;
@@ -246,49 +238,8 @@ function updateDecimalTime() {
     const decimalMinutes = Math.floor((totalDecimalSeconds % 10000) / 100);
     const decimalSeconds = Math.floor(totalDecimalSeconds % 100);
     
-    document.getElementById('hours').textContent = decimalHours;
-    document.getElementById('minutes').textContent = String(decimalMinutes).padStart(2, '0');
-    document.getElementById('seconds').textContent = String(decimalSeconds).padStart(2, '0');
+    const timeString = `${String(decimalHours).padStart(2, '0')}:${String(decimalMinutes).padStart(2, '0')}:${String(decimalSeconds).padStart(2, '0')}`;
+    document.getElementById('decimalTime').textContent = timeString;
 }
 
-// Setup proximity-based hover effect
-function setupProximityHoverEffect() {
-    const calendarCard = document.querySelector('.calendar-card');
-    const calendarDays = document.querySelectorAll('.calendar-day');
-    
-    calendarCard.addEventListener('mousemove', (e) => {
-        calendarDays.forEach(day => {
-            const rect = day.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            const distance = Math.sqrt(
-                Math.pow(e.clientX - centerX, 2) + 
-                Math.pow(e.clientY - centerY, 2)
-            );
-            
-            // Maximum distance for effect (in pixels)
-            const maxDistance = 300;
-            const proximity = Math.max(0, 1 - (distance / maxDistance));
-            
-            // Apply scale and brightness based on proximity
-            const scale = 1 + (proximity * 0.08);
-            const brightness = 1 + (proximity * 0.15);
-            
-            if (!day.classList.contains('current-day') && !day.classList.contains('extra-day')) {
-                day.style.transform = `scale(${scale})`;
-                day.style.filter = `brightness(${brightness})`;
-            } else {
-                day.style.transform = `scale(${scale})`;
-            }
-        });
-    });
-    
-    // Reset on mouse leave calendar card
-    calendarCard.addEventListener('mouseleave', () => {
-        calendarDays.forEach(day => {
-            day.style.transform = '';
-            day.style.filter = '';
-        });
-    });
-}
+
