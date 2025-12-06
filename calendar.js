@@ -24,15 +24,15 @@ const MONTH_NAMES = [
 ];
 
 const DAY_NAMES = [
-    'Unodi',
-    'Duodi',
-    'Triodi',
-    'Quordi',
-    'Quandi',
-    'Sexdi',
-    'Septadi',
-    'Octodi',
-    'Novedi'
+    'Primdia',
+    'Secdia',
+    'Terdia',
+    'Quadia',
+    'Quindia',
+    'Sexdia',
+    'Seddia',
+    'Octadia',
+    'Nondia'
 ];
 
 const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV'];
