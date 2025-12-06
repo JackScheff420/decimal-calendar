@@ -1,1 +1,1 @@
-# decimal-clock
+# decimal-calendar
