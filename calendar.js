@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
     document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
+    document.getElementById('todayBtn').addEventListener('click', goToToday);
 });
 
 // Calculate current decimal date
@@ -209,17 +210,107 @@ function createDayElement(dayNumber, currentDate) {
 
 // Change month
 function changeMonth(delta) {
-    currentMonth += delta;
+    const calendarGrid = document.getElementById('calendarGrid');
+    const extraDaysContainer = document.getElementById('extraDays');
     
-    if (currentMonth < 0) {
-        currentMonth = MONTHS_PER_YEAR - 1;
-        currentYear--;
-    } else if (currentMonth >= MONTHS_PER_YEAR) {
-        currentMonth = 0;
-        currentYear++;
+    // Apply exit animation
+    if (delta > 0) {
+        calendarGrid.classList.add('slide-out-left');
+        extraDaysContainer.classList.add('slide-out-left');
+    } else {
+        calendarGrid.classList.add('slide-out-right');
+        extraDaysContainer.classList.add('slide-out-right');
     }
     
-    renderCalendar();
+    // Wait for exit animation to complete
+    setTimeout(() => {
+        // Update month
+        currentMonth += delta;
+        
+        if (currentMonth < 0) {
+            currentMonth = MONTHS_PER_YEAR - 1;
+            currentYear--;
+        } else if (currentMonth >= MONTHS_PER_YEAR) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        
+        // Remove exit animation classes
+        calendarGrid.classList.remove('slide-out-left', 'slide-out-right');
+        extraDaysContainer.classList.remove('slide-out-left', 'slide-out-right');
+        
+        // Apply enter animation
+        if (delta > 0) {
+            calendarGrid.classList.add('slide-in-right');
+            extraDaysContainer.classList.add('slide-in-right');
+        } else {
+            calendarGrid.classList.add('slide-in-left');
+            extraDaysContainer.classList.add('slide-in-left');
+        }
+        
+        // Render calendar
+        renderCalendar();
+        
+        // Remove enter animation classes after animation completes
+        setTimeout(() => {
+            calendarGrid.classList.remove('slide-in-left', 'slide-in-right');
+            extraDaysContainer.classList.remove('slide-in-left', 'slide-in-right');
+        }, 300);
+    }, 300);
+}
+
+// Go to today's date
+function goToToday() {
+    const currentDate = getCurrentDecimalDate();
+    const calendarGrid = document.getElementById('calendarGrid');
+    const extraDaysContainer = document.getElementById('extraDays');
+    
+    // Only animate if we're changing months
+    if (currentMonth !== currentDate.month) {
+        // Determine direction
+        const delta = currentDate.month - currentMonth;
+        
+        // Apply exit animation
+        if (delta > 0) {
+            calendarGrid.classList.add('slide-out-left');
+            extraDaysContainer.classList.add('slide-out-left');
+        } else {
+            calendarGrid.classList.add('slide-out-right');
+            extraDaysContainer.classList.add('slide-out-right');
+        }
+        
+        // Wait for exit animation to complete
+        setTimeout(() => {
+            // Update to current month
+            currentMonth = currentDate.month;
+            currentYear = DECIMAL_YEAR;
+            
+            // Remove exit animation classes
+            calendarGrid.classList.remove('slide-out-left', 'slide-out-right');
+            extraDaysContainer.classList.remove('slide-out-left', 'slide-out-right');
+            
+            // Apply enter animation
+            if (delta > 0) {
+                calendarGrid.classList.add('slide-in-right');
+                extraDaysContainer.classList.add('slide-in-right');
+            } else {
+                calendarGrid.classList.add('slide-in-left');
+                extraDaysContainer.classList.add('slide-in-left');
+            }
+            
+            // Render calendar
+            renderCalendar();
+            
+            // Remove enter animation classes after animation completes
+            setTimeout(() => {
+                calendarGrid.classList.remove('slide-in-left', 'slide-in-right');
+                extraDaysContainer.classList.remove('slide-in-left', 'slide-in-right');
+            }, 300);
+        }, 300);
+    } else {
+        // Already on current month, just ensure we're showing it
+        renderCalendar();
+    }
 }
 
 // Update decimal time display
