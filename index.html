@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Calendar</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button id="prevMonth" class="nav-btn">‹</button>
+                <span id="monthName"></span>
+                <span id="monthNumber"></span>
+            </div>
+            <div id="yearDisplay" class="header-center"></div>
+            <div class="header-right">
+                <span id="decimalTime"></span>
+                <button id="nextMonth" class="nav-btn">›</button>
+            </div>
+        </div>
+        
+        <!-- Calendar Container -->
+        <div class="calendar-container">
+            <!-- Day Names Header -->
+            <div id="dayNames" class="day-names"></div>
+            
+            <!-- Calendar Grid -->
+            <div id="calendarGrid" class="calendar-grid"></div>
+            
+            <!-- Extra Days (for December) -->
+            <div id="extraDays" class="extra-days-container"></div>
+        </div>
+    </div>
+    
+    <script src="calendar.js"></script>
+</body>
+</html>
