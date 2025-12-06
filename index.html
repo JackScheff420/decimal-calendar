@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Calendar</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Time -->
+        <div class="time-container">
+            <div id="decimalTime">
+                <span id="hours">0</span><span class="time-separator">:</span><span id="minutes">00</span><span class="time-separator">:</span><span id="seconds">00</span>
+            </div>
+            <div id="regularTime"></div>
+        </div>
+        
+        <!-- Month Navigation -->
+        <div class="month-nav">
+            <button id="prevMonth" class="nav-button prev">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            
+            <div class="month-info">
+                <div id="monthName"></div>
+                <div id="yearDisplay"></div>
+            </div>
+            
+            <button id="nextMonth" class="nav-button next">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Calendar Grid -->
+        <div class="calendar-card">
+            <!-- Day Names Header -->
+            <div id="dayNames"></div>
+            
+            <!-- Calendar Days -->
+            <div id="calendarGrid"></div>
+            
+            <!-- Extra Days (for December) -->
+            <div id="extraDays"></div>
+        </div>
+        
+        <!-- Footer Info -->
+        <div class="footer">
+            <p>Decimal Calendar System • 10 Months • 36 Days • 9-Day Weeks</p>
+        </div>
+    </div>
+    
+    <script src="calendar.js"></script>
+</body>
+</html>
