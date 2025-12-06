@@ -11,16 +11,16 @@ const EXTRA_DAYS_LEAP = 6;
 const SPRING_EQUINOX_GREGORIAN = new Date(new Date().getFullYear(), 2, 20); // March 20
 
 const MONTH_NAMES = [
-    'PRIMEMBER',
-    'SECEMBER',
-    'TEREMBER',
-    'QUATTEMBER',
-    'QUINTEMBER',
-    'SEXTEMBER',
-    'SEPTEMBER',
-    'OCTOBER',
-    'NOVEMBER',
-    'DECEMBER'
+    'Primember',
+    'Secember',
+    'Terember',
+    'Quattember',
+    'Quintember',
+    'Sextember',
+    'September',
+    'October',
+    'November',
+    'December'
 ];
 
 const DAY_NAMES = [
@@ -118,7 +118,7 @@ function renderDayNames() {
         // Style the day name with large first letter and small rest
         const firstLetter = dayName.charAt(0);
         const restOfName = dayName.slice(1).toLowerCase();
-        dayElement.innerHTML = `<span style="font-size: 1.5rem;">${firstLetter}</span><span style="font-size: 0.75rem;">${restOfName}</span>`;
+        dayElement.innerHTML = `<span class="day-name-first">${firstLetter}</span><span class="day-name-rest">${restOfName}</span>`;
         
         dayNamesContainer.appendChild(dayElement);
     });
@@ -241,5 +241,3 @@ function updateDecimalTime() {
     const timeString = `${String(decimalHours).padStart(2, '0')}:${String(decimalMinutes).padStart(2, '0')}:${String(decimalSeconds).padStart(2, '0')}`;
     document.getElementById('decimalTime').textContent = timeString;
 }
-
-

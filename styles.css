@@ -102,6 +102,26 @@ body {
     }
 }
 
+.day-name-first {
+    font-size: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .day-name-first {
+        font-size: 1.875rem;
+    }
+}
+
+.day-name-rest {
+    font-size: 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .day-name-rest {
+        font-size: 0.875rem;
+    }
+}
+
 /* Calendar Grid */
 .calendar-grid {
     display: flex;
