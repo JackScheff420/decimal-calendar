@@ -85,3 +85,55 @@
     opacity: 0;
   }
 }
+
+@keyframes highlightDay {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@layer components {
+  .day-number::before,
+  .extra-day-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid currentColor;
+    border-radius: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  
+  .day-number:hover,
+  .extra-day-item:hover {
+    transform: scale(1.05);
+    font-weight: 400;
+  }
+  
+  .day-number:hover::before,
+  .extra-day-item:hover::before {
+    opacity: 0.3;
+    animation: borderFadeOut 0.6s ease forwards;
+  }
+  
+  .day-number.highlight,
+  .extra-day-item.highlight {
+    animation: highlightDay 0.6s ease;
+  }
+  
+  .day-number.highlight::before,
+  .extra-day-item.highlight::before {
+    opacity: 0.3;
+    animation: borderFadeOut 0.6s ease forwards;
+  }
+}

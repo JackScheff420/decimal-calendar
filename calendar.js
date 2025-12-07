@@ -90,11 +90,13 @@ function initializeTheme() {
 function initializeColorPicker() {
     const colorPickerToggle = document.getElementById('colorPickerToggle');
     const colorPickerPopup = document.getElementById('colorPickerPopup');
-    const colorOptions = document.querySelectorAll('.color-option');
+    const bgColorOptions = document.querySelectorAll('.bg-color-option');
+    const textColorOptions = document.querySelectorAll('.text-color-option');
     
-    // Load saved accent color
-    const savedColor = localStorage.getItem('accentColor') || '#000000';
-    setAccentColor(savedColor);
+    // Load saved colors
+    const savedBgColor = localStorage.getItem('backgroundColor') || '#FFFFFF';
+    const savedTextColor = localStorage.getItem('textColor') || '#000000';
+    applyColors(savedBgColor, savedTextColor);
     
     // Toggle color picker popup
     const toggleHandler = (e) => {
@@ -111,55 +113,31 @@ function initializeColorPicker() {
     };
     document.addEventListener('click', closeHandler);
     
-    // Handle color selection
-    colorOptions.forEach(option => {
+    // Handle background color selection
+    bgColorOptions.forEach(option => {
         option.addEventListener('click', () => {
-            const color = option.dataset.color;
-            setAccentColor(color);
-            localStorage.setItem('accentColor', color);
-            colorPickerPopup.classList.add('hidden');
+            const bgColor = option.dataset.bg;
+            const textColor = option.dataset.text;
+            applyColors(bgColor, textColor);
+            localStorage.setItem('backgroundColor', bgColor);
+            localStorage.setItem('textColor', textColor);
+        });
+    });
+    
+    // Handle text color selection
+    textColorOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const textColor = option.dataset.color;
+            const currentBgColor = localStorage.getItem('backgroundColor') || '#FFFFFF';
+            applyColors(currentBgColor, textColor);
+            localStorage.setItem('textColor', textColor);
         });
     });
 }
 
-function setAccentColor(color) {
-    // Calculate a lighter hover color (add 40% lightness)
-    const hoverColor = lightenColor(color, 40);
-    document.documentElement.style.setProperty('--color-accent', color);
-    document.documentElement.style.setProperty('--color-accent-hover', hoverColor);
-}
-
-function lightenColor(hex, percent) {
-    // Validate and normalize hex color
-    if (!hex || typeof hex !== 'string') {
-        return '#808080'; // Default fallback
-    }
-    
-    // Remove # if present
-    let cleanHex = hex.startsWith('#') ? hex.slice(1) : hex;
-    
-    // Handle 3-character hex colors (#FFF -> #FFFFFF)
-    if (cleanHex.length === 3) {
-        cleanHex = cleanHex.split('').map(c => c + c).join('');
-    }
-    
-    // Validate hex format
-    if (cleanHex.length !== 6 || !/^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
-        return '#808080'; // Default fallback
-    }
-    
-    // Convert hex to RGB
-    const r = parseInt(cleanHex.slice(0, 2), 16);
-    const g = parseInt(cleanHex.slice(2, 4), 16);
-    const b = parseInt(cleanHex.slice(4, 6), 16);
-    
-    // Increase each channel
-    const newR = Math.min(255, Math.floor(r + (255 - r) * percent / 100));
-    const newG = Math.min(255, Math.floor(g + (255 - g) * percent / 100));
-    const newB = Math.min(255, Math.floor(b + (255 - b) * percent / 100));
-    
-    // Convert back to hex
-    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+function applyColors(bgColor, textColor) {
+    document.body.style.backgroundColor = bgColor;
+    document.body.style.color = textColor;
 }
 
 // Calculate current decimal date
@@ -277,17 +255,14 @@ function renderCalendar() {
         
         for (let i = 0; i < extraDaysCount; i++) {
             const extraDayElement = document.createElement('div');
-            extraDayElement.className = 'cursor-pointer transition-all duration-200 opacity-80 hover:scale-105 hover:font-normal relative p-2 md:p-4 rounded group';
+            extraDayElement.className = 'extra-day-item cursor-pointer transition-all duration-200 opacity-80 relative p-2 md:p-4 rounded';
             
             const isCurrentExtraDay = currentDate.isExtraDay && currentDate.extraDayIndex === i;
             if (isCurrentExtraDay) {
-                extraDayElement.classList.add('!opacity-100', 'font-medium');
+                extraDayElement.classList.add('current', '!opacity-100', 'font-medium');
             }
             
-            extraDayElement.innerHTML = `
-                ${i + 1}
-                <span class="absolute inset-0 border-2 border-current rounded opacity-0 group-hover:opacity-30 pointer-events-none transition-opacity duration-300 animate-[borderFadeOut_0.6s_ease_forwards]"></span>
-            `;
+            extraDayElement.textContent = i + 1;
             extraDaysRow.appendChild(extraDayElement);
         }
         
@@ -298,20 +273,17 @@ function renderCalendar() {
 // Create a day element
 function createDayElement(dayNumber, currentDate) {
     const dayElement = document.createElement('div');
-    dayElement.className = 'text-3xl md:text-5xl cursor-pointer transition-all duration-200 opacity-80 hover:scale-105 hover:font-normal relative p-2 rounded group';
+    dayElement.className = 'day-number text-3xl md:text-5xl cursor-pointer transition-all duration-200 opacity-80 relative p-2 rounded';
     
     const isCurrentDay = !currentDate.isExtraDay && 
                          currentDate.month === currentMonth && 
                          currentDate.day === dayNumber;
     
     if (isCurrentDay) {
-        dayElement.classList.add('!opacity-100', 'font-medium');
+        dayElement.classList.add('current', '!opacity-100', 'font-medium');
     }
     
-    dayElement.innerHTML = `
-        ${dayNumber}
-        <span class="absolute inset-0 border-2 border-current rounded opacity-0 group-hover:opacity-30 pointer-events-none transition-opacity duration-300 animate-[borderFadeOut_0.6s_ease_forwards]"></span>
-    `;
+    dayElement.textContent = dayNumber;
     
     return dayElement;
 }
@@ -413,11 +385,38 @@ function goToToday() {
             setTimeout(() => {
                 calendarGrid.classList.remove('slide-in-left', 'slide-in-right');
                 extraDaysContainer.classList.remove('slide-in-left', 'slide-in-right');
+                // Highlight today's date
+                highlightTodayDate(currentDate);
             }, 300);
         }, 300);
     } else {
-        // Already on current month, just ensure we're showing it
-        renderCalendar();
+        // Already on current month, just highlight today
+        highlightTodayDate(currentDate);
+    }
+}
+
+// Highlight today's date with animation
+function highlightTodayDate(currentDate) {
+    if (currentDate.isExtraDay) {
+        // Find the extra day element
+        const extraDayElements = document.querySelectorAll('.extra-day-item');
+        if (extraDayElements[currentDate.extraDayIndex]) {
+            const element = extraDayElements[currentDate.extraDayIndex];
+            element.classList.add('highlight');
+            setTimeout(() => {
+                element.classList.remove('highlight');
+            }, 600);
+        }
+    } else {
+        // Find the day element
+        const dayElements = document.querySelectorAll('.day-number');
+        if (dayElements[currentDate.day - 1]) {
+            const element = dayElements[currentDate.day - 1];
+            element.classList.add('highlight');
+            setTimeout(() => {
+                element.classList.remove('highlight');
+            }, 600);
+        }
     }
 }
 

@@ -58,18 +58,40 @@
     
     <!-- Color Picker Popup -->
     <div id="colorPickerPopup" class="fixed bottom-20 left-6 hidden bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 z-50 border border-gray-200 dark:border-gray-700">
-        <div class="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Choose Accent Color</div>
-        <div class="grid grid-cols-5 gap-2">
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #000000;" data-color="#000000" aria-label="Black"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #3B82F6;" data-color="#3B82F6" aria-label="Blue"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #EF4444;" data-color="#EF4444" aria-label="Red"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #10B981;" data-color="#10B981" aria-label="Green"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #F59E0B;" data-color="#F59E0B" aria-label="Amber"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #8B5CF6;" data-color="#8B5CF6" aria-label="Purple"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #EC4899;" data-color="#EC4899" aria-label="Pink"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #14B8A6;" data-color="#14B8A6" aria-label="Teal"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #F97316;" data-color="#F97316" aria-label="Orange"></button>
-            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #6366F1;" data-color="#6366F1" aria-label="Indigo"></button>
+        <div class="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Choose Theme Colors</div>
+        
+        <!-- Background Color Section -->
+        <div class="mb-4">
+            <div class="text-xs font-medium mb-2 text-gray-600 dark:text-gray-400">Background</div>
+            <div class="grid grid-cols-5 gap-2">
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #FFFFFF;" data-bg="#FFFFFF" data-text="#000000" aria-label="White"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #F5F5F5;" data-bg="#F5F5F5" data-text="#1F1F1F" aria-label="Light Gray"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #FFF8E1;" data-bg="#FFF8E1" data-text="#4A3800" aria-label="Cream"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #E8F5E9;" data-bg="#E8F5E9" data-text="#1B5E20" aria-label="Light Green"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #E3F2FD;" data-bg="#E3F2FD" data-text="#0D47A1" aria-label="Light Blue"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #1A1A1A;" data-bg="#1A1A1A" data-text="#FFFFFF" aria-label="Dark Gray"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #0F172A;" data-bg="#0F172A" data-text="#F1F5F9" aria-label="Navy"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #1E1E1E;" data-bg="#1E1E1E" data-text="#E0E0E0" aria-label="Charcoal"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #000000;" data-bg="#000000" data-text="#FFFFFF" aria-label="Black"></button>
+                <button class="bg-color-option w-8 h-8 rounded border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #2C1810;" data-bg="#2C1810" data-text="#F5E6D3" aria-label="Dark Brown"></button>
+            </div>
+        </div>
+        
+        <!-- Text Color Section -->
+        <div>
+            <div class="text-xs font-medium mb-2 text-gray-600 dark:text-gray-400">Text</div>
+            <div class="grid grid-cols-5 gap-2">
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #000000;" data-color="#000000" aria-label="Black"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #1F1F1F;" data-color="#1F1F1F" aria-label="Dark Gray"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #424242;" data-color="#424242" aria-label="Gray"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #E0E0E0;" data-color="#E0E0E0" aria-label="Light Gray"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #FFFFFF;" data-color="#FFFFFF" aria-label="White"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #0D47A1;" data-color="#0D47A1" aria-label="Blue"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #1B5E20;" data-color="#1B5E20" aria-label="Green"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #4A3800;" data-color="#4A3800" aria-label="Brown"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #B71C1C;" data-color="#B71C1C" aria-label="Red"></button>
+                <button class="text-color-option w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #4A148C;" data-color="#4A148C" aria-label="Purple"></button>
+            </div>
         </div>
     </div>
     
