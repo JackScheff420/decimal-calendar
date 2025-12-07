@@ -59,7 +59,88 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
     document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
     document.getElementById('todayBtn').addEventListener('click', goToToday);
+    
+    // Initialize theme
+    initializeTheme();
+    
+    // Initialize color picker
+    initializeColorPicker();
 });
+
+// Theme Management
+function initializeTheme() {
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    
+    // Check for saved theme preference or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        html.classList.add('dark');
+    }
+    
+    // Toggle theme on button click
+    themeToggle.addEventListener('click', () => {
+        html.classList.toggle('dark');
+        const newTheme = html.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+    });
+}
+
+// Color Picker Management
+function initializeColorPicker() {
+    const colorPickerToggle = document.getElementById('colorPickerToggle');
+    const colorPickerPopup = document.getElementById('colorPickerPopup');
+    const colorOptions = document.querySelectorAll('.color-option');
+    
+    // Load saved accent color
+    const savedColor = localStorage.getItem('accentColor') || '#000000';
+    setAccentColor(savedColor);
+    
+    // Toggle color picker popup
+    colorPickerToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        colorPickerPopup.classList.toggle('hidden');
+    });
+    
+    // Close popup when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!colorPickerPopup.contains(e.target) && e.target !== colorPickerToggle) {
+            colorPickerPopup.classList.add('hidden');
+        }
+    });
+    
+    // Handle color selection
+    colorOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const color = option.dataset.color;
+            setAccentColor(color);
+            localStorage.setItem('accentColor', color);
+            colorPickerPopup.classList.add('hidden');
+        });
+    });
+}
+
+function setAccentColor(color) {
+    // Calculate a lighter hover color (add 40% lightness)
+    const hoverColor = lightenColor(color, 40);
+    document.documentElement.style.setProperty('--color-accent', color);
+    document.documentElement.style.setProperty('--color-accent-hover', hoverColor);
+}
+
+function lightenColor(hex, percent) {
+    // Convert hex to RGB
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    
+    // Increase each channel
+    const newR = Math.min(255, Math.floor(r + (255 - r) * percent / 100));
+    const newG = Math.min(255, Math.floor(g + (255 - g) * percent / 100));
+    const newB = Math.min(255, Math.floor(b + (255 - b) * percent / 100));
+    
+    // Convert back to hex
+    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+}
 
 // Calculate current decimal date
 function getCurrentDecimalDate() {
@@ -119,7 +200,7 @@ function renderDayNames() {
         // Style the day name with large first letter and small rest
         const firstLetter = dayName.charAt(0);
         const restOfName = dayName.slice(1).toLowerCase();
-        dayElement.innerHTML = `<span class="day-name-first">${firstLetter}</span><span class="day-name-rest">${restOfName}</span>`;
+        dayElement.innerHTML = `<span class="text-2xl md:text-3xl">${firstLetter}</span><span class="text-xs md:text-sm">${restOfName}</span>`;
         
         dayNamesContainer.appendChild(dayElement);
     });
@@ -145,16 +226,17 @@ function renderCalendar() {
     // Render regular calendar days (4 weeks, 9 days each)
     for (let week = 0; week < WEEKS_PER_MONTH; week++) {
         const weekRow = document.createElement('div');
-        weekRow.className = 'week-row';
+        weekRow.className = 'flex items-center gap-4 md:gap-8';
         
         // Add roman numeral
         const romanNumeral = document.createElement('div');
+        romanNumeral.className = 'w-4 md:w-8 text-center text-xs md:text-3xl';
         romanNumeral.textContent = ROMAN_NUMERALS[week];
         weekRow.appendChild(romanNumeral);
         
         // Create day container
         const daysContainer = document.createElement('div');
-        daysContainer.className = 'days-grid';
+        daysContainer.className = 'grid grid-cols-9 gap-4 md:gap-8 flex-1 text-center';
         
         for (let dayInWeek = 0; dayInWeek < DAYS_PER_WEEK; dayInWeek++) {
             const dayNumber = week * DAYS_PER_WEEK + dayInWeek + 1;
@@ -171,18 +253,21 @@ function renderCalendar() {
         const extraDaysCount = isLeapYear() ? EXTRA_DAYS_LEAP : EXTRA_DAYS_NORMAL;
         
         const extraDaysRow = document.createElement('div');
-        extraDaysRow.className = 'extra-days-row';
+        extraDaysRow.className = 'flex justify-center items-center gap-8 md:gap-12 text-3xl md:text-4xl text-center';
         
         for (let i = 0; i < extraDaysCount; i++) {
             const extraDayElement = document.createElement('div');
-            extraDayElement.className = 'extra-day-item';
+            extraDayElement.className = 'cursor-pointer transition-all duration-200 opacity-80 hover:scale-105 hover:font-normal relative p-2 md:p-4 rounded group';
             
             const isCurrentExtraDay = currentDate.isExtraDay && currentDate.extraDayIndex === i;
             if (isCurrentExtraDay) {
-                extraDayElement.classList.add('current');
+                extraDayElement.classList.add('!opacity-100', 'font-medium');
             }
             
-            extraDayElement.textContent = i + 1;
+            extraDayElement.innerHTML = `
+                ${i + 1}
+                <span class="absolute inset-0 border-2 border-current rounded opacity-0 group-hover:opacity-30 pointer-events-none transition-opacity duration-300 animate-[borderFadeOut_0.6s_ease_forwards]"></span>
+            `;
             extraDaysRow.appendChild(extraDayElement);
         }
         
@@ -193,17 +278,20 @@ function renderCalendar() {
 // Create a day element
 function createDayElement(dayNumber, currentDate) {
     const dayElement = document.createElement('div');
-    dayElement.className = 'day-number';
+    dayElement.className = 'text-3xl md:text-5xl cursor-pointer transition-all duration-200 opacity-80 hover:scale-105 hover:font-normal relative p-2 rounded group';
     
     const isCurrentDay = !currentDate.isExtraDay && 
                          currentDate.month === currentMonth && 
                          currentDate.day === dayNumber;
     
     if (isCurrentDay) {
-        dayElement.classList.add('current');
+        dayElement.classList.add('!opacity-100', 'font-medium');
     }
     
-    dayElement.textContent = dayNumber;
+    dayElement.innerHTML = `
+        ${dayNumber}
+        <span class="absolute inset-0 border-2 border-current rounded opacity-0 group-hover:opacity-30 pointer-events-none transition-opacity duration-300 animate-[borderFadeOut_0.6s_ease_forwards]"></span>
+    `;
     
     return dayElement;
 }

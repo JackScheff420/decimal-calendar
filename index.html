@@ -1,38 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decimal Calendar</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="container">
+<body class="min-h-screen p-12 md:p-16 lg:p-24">
+    <div class="max-w-full mx-auto">
         <!-- Header -->
-        <div class="header">
-            <div class="header-left">
-                <button id="prevMonth" class="nav-btn">‹</button>
-                <span id="monthName"></span>
-                <span id="monthNumber"></span>
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 mb-12 md:mb-16 text-sm md:text-base tracking-wider">
+            <div class="flex items-center gap-2">
+                <button id="prevMonth" class="nav-btn p-2 text-2xl hover:text-accent-hover transition-colors duration-200">‹</button>
+                <span id="monthName" class="font-normal"></span>
+                <span id="monthNumber" class="font-normal"></span>
             </div>
-            <div id="yearDisplay" class="header-center"></div>
-            <div class="header-right">
-                <button id="todayBtn" class="today-btn">Today</button>
-                <span id="decimalTime"></span>
-                <button id="nextMonth" class="nav-btn">›</button>
+            <div id="yearDisplay" class="text-center font-normal"></div>
+            <div class="flex items-center gap-2">
+                <button id="todayBtn" class="border border-current px-3 py-1.5 md:px-4 md:py-2 rounded text-xs md:text-sm font-normal tracking-wider hover:bg-accent hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-hover">Today</button>
+                <span id="decimalTime" class="font-normal"></span>
+                <button id="nextMonth" class="nav-btn p-2 text-2xl hover:text-accent-hover transition-colors duration-200">›</button>
             </div>
         </div>
         
         <!-- Calendar Container -->
-        <div class="calendar-container">
+        <div class="flex flex-col gap-8 md:gap-10">
             <!-- Day Names Header -->
-            <div id="dayNames" class="day-names"></div>
+            <div id="dayNames" class="grid grid-cols-9 gap-4 md:gap-8 pl-8 md:pl-12 text-center tracking-wide"></div>
             
             <!-- Calendar Grid -->
-            <div id="calendarGrid" class="calendar-grid"></div>
+            <div id="calendarGrid" class="flex flex-col gap-6 md:gap-8 transition-opacity duration-300"></div>
             
             <!-- Extra Days (for December) -->
-            <div id="extraDays" class="extra-days-container"></div>
+            <div id="extraDays" class="mt-12 md:mt-16 transition-opacity duration-300"></div>
+        </div>
+    </div>
+    
+    <!-- Footer Controls -->
+    <div class="fixed bottom-6 left-6 flex gap-3 z-50">
+        <!-- Dark/Light Mode Toggle -->
+        <button id="themeToggle" class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 shadow-md" aria-label="Toggle dark mode">
+            <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <svg id="moonIcon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+        </button>
+        
+        <!-- Color Picker Toggle -->
+        <button id="colorPickerToggle" class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 shadow-md" aria-label="Choose accent color">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Color Picker Popup -->
+    <div id="colorPickerPopup" class="fixed bottom-20 left-6 hidden bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 z-50 border border-gray-200 dark:border-gray-700">
+        <div class="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Choose Accent Color</div>
+        <div class="grid grid-cols-5 gap-2">
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #000000;" data-color="#000000" aria-label="Black"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #3B82F6;" data-color="#3B82F6" aria-label="Blue"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #EF4444;" data-color="#EF4444" aria-label="Red"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #10B981;" data-color="#10B981" aria-label="Green"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #F59E0B;" data-color="#F59E0B" aria-label="Amber"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #8B5CF6;" data-color="#8B5CF6" aria-label="Purple"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #EC4899;" data-color="#EC4899" aria-label="Pink"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #14B8A6;" data-color="#14B8A6" aria-label="Teal"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #F97316;" data-color="#F97316" aria-label="Orange"></button>
+            <button class="color-option w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-all" style="background-color: #6366F1;" data-color="#6366F1" aria-label="Indigo"></button>
         </div>
     </div>
     

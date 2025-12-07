@@ -1,3 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --color-accent: #000000;
+    --color-accent-hover: #808080;
+  }
+  
+  body {
+    @apply font-comfortaa font-light bg-white text-black dark:bg-gray-900 dark:text-white;
+  }
+}
+
+@layer utilities {
+  .slide-out-left {
+    animation: slideOutLeft 0.3s ease forwards;
+  }
+  
+  .slide-out-right {
+    animation: slideOutRight 0.3s ease forwards;
+  }
+  
+  .slide-in-left {
+    animation: slideInLeft 0.3s ease forwards;
+  }
+  
+  .slide-in-right {
+    animation: slideInRight 0.3s ease forwards;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes borderFadeOut {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
