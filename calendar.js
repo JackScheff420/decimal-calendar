@@ -59,7 +59,241 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
     document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
     document.getElementById('todayBtn').addEventListener('click', goToToday);
+    
+    // Initialize theme
+    initializeTheme();
+    
+    // Initialize color picker
+    initializeColorPicker();
 });
+
+// Default color schemes
+const DEFAULT_LIGHT_BG = '#FFFFFF';
+const DEFAULT_LIGHT_TEXT = '#000000';
+const DEFAULT_DARK_BG = '#111827';
+const DEFAULT_DARK_TEXT = '#F9FAFB';
+
+// Current mode state
+let currentMode = 'light';
+
+// Theme Management
+function initializeTheme() {
+    const themeToggle = document.getElementById('themeToggle');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+    
+    // Check for saved theme preference or default to light
+    currentMode = localStorage.getItem('theme') || 'light';
+    applyThemeMode(currentMode);
+    
+    // Update icon visibility
+    updateThemeIcon(currentMode, sunIcon, moonIcon);
+    
+    // Toggle theme on button click
+    themeToggle.addEventListener('click', () => {
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', currentMode);
+        applyThemeMode(currentMode);
+        updateThemeIcon(currentMode, sunIcon, moonIcon);
+        updateColorPickerSelection();
+    });
+}
+
+function updateThemeIcon(mode, sunIcon, moonIcon) {
+    if (mode === 'dark') {
+        sunIcon.classList.remove('hidden');
+        sunIcon.classList.add('block');
+        moonIcon.classList.remove('block');
+        moonIcon.classList.add('hidden');
+    } else {
+        sunIcon.classList.remove('block');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+        moonIcon.classList.add('block');
+    }
+}
+
+function applyThemeMode(mode) {
+    const body = document.body;
+    
+    let bgColor, textColor;
+    
+    if (mode === 'dark') {
+        body.classList.add('dark-mode');
+        // Load dark mode colors
+        bgColor = localStorage.getItem('darkModeBg') || DEFAULT_DARK_BG;
+        textColor = localStorage.getItem('darkModeText') || DEFAULT_DARK_TEXT;
+    } else {
+        body.classList.remove('dark-mode');
+        // Load light mode colors
+        bgColor = localStorage.getItem('lightModeBg') || DEFAULT_LIGHT_BG;
+        textColor = localStorage.getItem('lightModeText') || DEFAULT_LIGHT_TEXT;
+    }
+    
+    body.style.backgroundColor = bgColor;
+    body.style.color = textColor;
+    
+    // Update footer button colors to match theme
+    updateFooterButtonColors(bgColor, textColor);
+}
+
+function updateFooterButtonColors(bgColor, textColor) {
+    const themeToggle = document.getElementById('themeToggle');
+    const colorPickerToggle = document.getElementById('colorPickerToggle');
+    
+    // Calculate a slightly different shade for the buttons
+    const buttonBg = adjustBrightness(bgColor, 0.1);
+    
+    if (themeToggle) {
+        themeToggle.style.backgroundColor = buttonBg;
+        themeToggle.style.color = textColor;
+    }
+    
+    if (colorPickerToggle) {
+        colorPickerToggle.style.backgroundColor = buttonBg;
+        colorPickerToggle.style.color = textColor;
+    }
+}
+
+function adjustBrightness(hex, factor) {
+    // Convert hex to RGB
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    
+    // Calculate brightness
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    
+    // If dark background, lighten; if light background, darken
+    const multiplier = brightness < 128 ? 1 + factor : 1 - factor;
+    
+    const newR = Math.min(255, Math.max(0, Math.round(r * multiplier)));
+    const newG = Math.min(255, Math.max(0, Math.round(g * multiplier)));
+    const newB = Math.min(255, Math.max(0, Math.round(b * multiplier)));
+    
+    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+}
+
+// Color Picker Management
+function initializeColorPicker() {
+    const colorPickerToggle = document.getElementById('colorPickerToggle');
+    const colorPickerPopup = document.getElementById('colorPickerPopup');
+    const bgColorOptions = document.querySelectorAll('.bg-color-option');
+    const textColorOptions = document.querySelectorAll('.text-color-option');
+    
+    // Initial selection update
+    updateColorPickerSelection();
+    
+    // Toggle color picker popup
+    const toggleHandler = (e) => {
+        e.stopPropagation();
+        colorPickerPopup.classList.toggle('hidden');
+        if (!colorPickerPopup.classList.contains('hidden')) {
+            updateColorPickerSelection();
+        }
+    };
+    colorPickerToggle.addEventListener('click', toggleHandler);
+    
+    // Close popup when clicking outside
+    const closeHandler = (e) => {
+        if (!colorPickerPopup.contains(e.target) && e.target !== colorPickerToggle) {
+            colorPickerPopup.classList.add('hidden');
+        }
+    };
+    document.addEventListener('click', closeHandler);
+    
+    // Handle background color selection
+    bgColorOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const bgColor = option.dataset.bg;
+            const textColor = option.dataset.text;
+            
+            // Save colors for current mode
+            if (currentMode === 'dark') {
+                localStorage.setItem('darkModeBg', bgColor);
+                localStorage.setItem('darkModeText', textColor);
+            } else {
+                localStorage.setItem('lightModeBg', bgColor);
+                localStorage.setItem('lightModeText', textColor);
+            }
+            
+            // Apply immediately
+            document.body.style.backgroundColor = bgColor;
+            document.body.style.color = textColor;
+            
+            // Update footer buttons
+            updateFooterButtonColors(bgColor, textColor);
+            
+            updateColorPickerSelection();
+        });
+    });
+    
+    // Handle text color selection
+    textColorOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const textColor = option.dataset.color;
+            
+            // Get current background color
+            const currentBgColor = currentMode === 'dark' 
+                ? localStorage.getItem('darkModeBg') || DEFAULT_DARK_BG
+                : localStorage.getItem('lightModeBg') || DEFAULT_LIGHT_BG;
+            
+            // Save text color for current mode
+            if (currentMode === 'dark') {
+                localStorage.setItem('darkModeText', textColor);
+            } else {
+                localStorage.setItem('lightModeText', textColor);
+            }
+            
+            // Apply immediately
+            document.body.style.color = textColor;
+            
+            // Update footer buttons
+            updateFooterButtonColors(currentBgColor, textColor);
+            
+            updateColorPickerSelection();
+        });
+    });
+}
+
+function updateColorPickerSelection() {
+    const bgColorOptions = document.querySelectorAll('.bg-color-option');
+    const textColorOptions = document.querySelectorAll('.text-color-option');
+    
+    // Get current colors based on mode
+    let currentBg, currentText;
+    if (currentMode === 'dark') {
+        currentBg = localStorage.getItem('darkModeBg') || DEFAULT_DARK_BG;
+        currentText = localStorage.getItem('darkModeText') || DEFAULT_DARK_TEXT;
+    } else {
+        currentBg = localStorage.getItem('lightModeBg') || DEFAULT_LIGHT_BG;
+        currentText = localStorage.getItem('lightModeText') || DEFAULT_LIGHT_TEXT;
+    }
+    
+    // Update background color selections
+    bgColorOptions.forEach(option => {
+        const indicator = option.querySelector('.selected-indicator');
+        if (option.dataset.bg === currentBg) {
+            option.classList.add('selected');
+            if (indicator) indicator.classList.remove('hidden');
+        } else {
+            option.classList.remove('selected');
+            if (indicator) indicator.classList.add('hidden');
+        }
+    });
+    
+    // Update text color selections
+    textColorOptions.forEach(option => {
+        const indicator = option.querySelector('.selected-indicator');
+        if (option.dataset.color === currentText) {
+            option.classList.add('selected');
+            if (indicator) indicator.classList.remove('hidden');
+        } else {
+            option.classList.remove('selected');
+            if (indicator) indicator.classList.add('hidden');
+        }
+    });
+}
 
 // Calculate current decimal date
 function getCurrentDecimalDate() {
@@ -119,7 +353,7 @@ function renderDayNames() {
         // Style the day name with large first letter and small rest
         const firstLetter = dayName.charAt(0);
         const restOfName = dayName.slice(1).toLowerCase();
-        dayElement.innerHTML = `<span class="day-name-first">${firstLetter}</span><span class="day-name-rest">${restOfName}</span>`;
+        dayElement.innerHTML = `<span class="text-2xl md:text-3xl">${firstLetter}</span><span class="text-xs md:text-sm">${restOfName}</span>`;
         
         dayNamesContainer.appendChild(dayElement);
     });
@@ -145,16 +379,17 @@ function renderCalendar() {
     // Render regular calendar days (4 weeks, 9 days each)
     for (let week = 0; week < WEEKS_PER_MONTH; week++) {
         const weekRow = document.createElement('div');
-        weekRow.className = 'week-row';
+        weekRow.className = 'flex items-center gap-4 md:gap-8';
         
         // Add roman numeral
         const romanNumeral = document.createElement('div');
+        romanNumeral.className = 'w-4 md:w-8 text-center text-xs md:text-3xl';
         romanNumeral.textContent = ROMAN_NUMERALS[week];
         weekRow.appendChild(romanNumeral);
         
         // Create day container
         const daysContainer = document.createElement('div');
-        daysContainer.className = 'days-grid';
+        daysContainer.className = 'grid grid-cols-9 gap-4 md:gap-8 flex-1 text-center';
         
         for (let dayInWeek = 0; dayInWeek < DAYS_PER_WEEK; dayInWeek++) {
             const dayNumber = week * DAYS_PER_WEEK + dayInWeek + 1;
@@ -171,15 +406,15 @@ function renderCalendar() {
         const extraDaysCount = isLeapYear() ? EXTRA_DAYS_LEAP : EXTRA_DAYS_NORMAL;
         
         const extraDaysRow = document.createElement('div');
-        extraDaysRow.className = 'extra-days-row';
+        extraDaysRow.className = 'flex justify-center items-center gap-8 md:gap-12 text-3xl md:text-4xl text-center';
         
         for (let i = 0; i < extraDaysCount; i++) {
             const extraDayElement = document.createElement('div');
-            extraDayElement.className = 'extra-day-item';
+            extraDayElement.className = 'extra-day-item cursor-pointer transition-all duration-200 opacity-80 relative p-2 md:p-4 rounded';
             
             const isCurrentExtraDay = currentDate.isExtraDay && currentDate.extraDayIndex === i;
             if (isCurrentExtraDay) {
-                extraDayElement.classList.add('current');
+                extraDayElement.classList.add('current', '!opacity-100', 'font-medium');
             }
             
             extraDayElement.textContent = i + 1;
@@ -193,14 +428,14 @@ function renderCalendar() {
 // Create a day element
 function createDayElement(dayNumber, currentDate) {
     const dayElement = document.createElement('div');
-    dayElement.className = 'day-number';
+    dayElement.className = 'day-number text-3xl md:text-5xl cursor-pointer transition-all duration-200 opacity-80 relative p-2 rounded';
     
     const isCurrentDay = !currentDate.isExtraDay && 
                          currentDate.month === currentMonth && 
                          currentDate.day === dayNumber;
     
     if (isCurrentDay) {
-        dayElement.classList.add('current');
+        dayElement.classList.add('current', '!opacity-100', 'font-medium');
     }
     
     dayElement.textContent = dayNumber;
@@ -305,11 +540,39 @@ function goToToday() {
             setTimeout(() => {
                 calendarGrid.classList.remove('slide-in-left', 'slide-in-right');
                 extraDaysContainer.classList.remove('slide-in-left', 'slide-in-right');
+                // Highlight today's date
+                highlightTodayDate(currentDate);
             }, 300);
         }, 300);
     } else {
-        // Already on current month, just ensure we're showing it
-        renderCalendar();
+        // Already on current month, just highlight today
+        highlightTodayDate(currentDate);
+    }
+}
+
+// Highlight today's date with animation
+function highlightTodayDate(currentDate) {
+    if (currentDate.isExtraDay) {
+        // Find the extra day element
+        const extraDayElements = document.querySelectorAll('.extra-day-item');
+        if (extraDayElements[currentDate.extraDayIndex]) {
+            const element = extraDayElements[currentDate.extraDayIndex];
+            element.classList.add('highlight');
+            setTimeout(() => {
+                element.classList.remove('highlight');
+            }, 600);
+        }
+    } else {
+        // Find the current day element by matching its content
+        const dayElements = document.querySelectorAll('.day-number');
+        dayElements.forEach(element => {
+            if (element.textContent.trim() === String(currentDate.day)) {
+                element.classList.add('highlight');
+                setTimeout(() => {
+                    element.classList.remove('highlight');
+                }, 600);
+            }
+        });
     }
 }
 

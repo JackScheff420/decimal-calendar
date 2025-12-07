@@ -1,3 +1,189 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --color-accent: #000000;
+    --color-accent-hover: #808080;
+  }
+  
+  body {
+    @apply font-comfortaa font-light;
+  }
+}
+
+@layer utilities {
+  .slide-out-left {
+    animation: slideOutLeft 0.3s ease forwards;
+  }
+  
+  .slide-out-right {
+    animation: slideOutRight 0.3s ease forwards;
+  }
+  
+  .slide-in-left {
+    animation: slideInLeft 0.3s ease forwards;
+  }
+  
+  .slide-in-right {
+    animation: slideInRight 0.3s ease forwards;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes borderFadeOut {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes highlightDay {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@layer components {
+  .day-number::before,
+  .extra-day-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid currentColor;
+    border-radius: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  
+  .day-number:hover,
+  .extra-day-item:hover {
+    transform: scale(1.05);
+    font-weight: 400;
+  }
+  
+  .day-number:hover::before,
+  .extra-day-item:hover::before {
+    opacity: 0.3;
+    animation: borderFadeOut 0.6s ease forwards;
+  }
+  
+  .day-number.highlight,
+  .extra-day-item.highlight {
+    animation: highlightDay 0.6s ease;
+  }
+  
+  .day-number.highlight::before,
+  .extra-day-item.highlight::before {
+    opacity: 0.3;
+    animation: borderFadeOut 0.6s ease forwards;
+  }
+  
+  /* Today button hover effect with contrasting text */
+  .today-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  body.dark-mode .today-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Footer button styling - adapts to custom colors */
+  .theme-toggle-btn,
+  .color-picker-btn {
+    /* Background and text colors will be set dynamically by JavaScript */
+  }
+  
+  .theme-toggle-btn:hover,
+  .color-picker-btn:hover {
+    opacity: 0.8;
+  }
+  
+  /* Color picker popup styling */
+  .color-picker-popup {
+    background-color: #ffffff;
+    color: #1f2937;
+    border-color: #e5e7eb;
+  }
+  
+  body.dark-mode .color-picker-popup {
+    background-color: #1f2937;
+    color: #f3f4f6;
+    border-color: #374151;
+  }
+  
+  /* Color option borders */
+  .bg-color-option,
+  .text-color-option {
+    border-color: transparent;
+  }
+  
+  .bg-color-option:hover,
+  .text-color-option:hover {
+    border-color: #9ca3af;
+  }
+  
+  .bg-color-option.selected,
+  .text-color-option.selected {
+    border-color: #3b82f6 !important;
+    border-width: 3px;
+  }
+}
