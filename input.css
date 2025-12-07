@@ -137,28 +137,24 @@
     animation: borderFadeOut 0.6s ease forwards;
   }
   
-  /* Footer button styling */
+  /* Today button hover effect with contrasting text */
+  .today-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  body.dark-mode .today-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Footer button styling - adapts to custom colors */
   .theme-toggle-btn,
   .color-picker-btn {
-    background-color: #f3f4f6;
-    color: #1f2937;
+    /* Background and text colors will be set dynamically by JavaScript */
   }
   
   .theme-toggle-btn:hover,
   .color-picker-btn:hover {
-    background-color: #e5e7eb;
-  }
-  
-  /* Dark mode footer buttons */
-  body.dark-mode .theme-toggle-btn,
-  body.dark-mode .color-picker-btn {
-    background-color: #1f2937;
-    color: #f3f4f6;
-  }
-  
-  body.dark-mode .theme-toggle-btn:hover,
-  body.dark-mode .color-picker-btn:hover {
-    background-color: #374151;
+    opacity: 0.8;
   }
   
   /* Color picker popup styling */

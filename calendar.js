@@ -116,21 +116,62 @@ function updateThemeIcon(mode, sunIcon, moonIcon) {
 function applyThemeMode(mode) {
     const body = document.body;
     
+    let bgColor, textColor;
+    
     if (mode === 'dark') {
         body.classList.add('dark-mode');
         // Load dark mode colors
-        const darkBg = localStorage.getItem('darkModeBg') || DEFAULT_DARK_BG;
-        const darkText = localStorage.getItem('darkModeText') || DEFAULT_DARK_TEXT;
-        body.style.backgroundColor = darkBg;
-        body.style.color = darkText;
+        bgColor = localStorage.getItem('darkModeBg') || DEFAULT_DARK_BG;
+        textColor = localStorage.getItem('darkModeText') || DEFAULT_DARK_TEXT;
     } else {
         body.classList.remove('dark-mode');
         // Load light mode colors
-        const lightBg = localStorage.getItem('lightModeBg') || DEFAULT_LIGHT_BG;
-        const lightText = localStorage.getItem('lightModeText') || DEFAULT_LIGHT_TEXT;
-        body.style.backgroundColor = lightBg;
-        body.style.color = lightText;
+        bgColor = localStorage.getItem('lightModeBg') || DEFAULT_LIGHT_BG;
+        textColor = localStorage.getItem('lightModeText') || DEFAULT_LIGHT_TEXT;
     }
+    
+    body.style.backgroundColor = bgColor;
+    body.style.color = textColor;
+    
+    // Update footer button colors to match theme
+    updateFooterButtonColors(bgColor, textColor);
+}
+
+function updateFooterButtonColors(bgColor, textColor) {
+    const themeToggle = document.getElementById('themeToggle');
+    const colorPickerToggle = document.getElementById('colorPickerToggle');
+    
+    // Calculate a slightly different shade for the buttons
+    const buttonBg = adjustBrightness(bgColor, 0.1);
+    
+    if (themeToggle) {
+        themeToggle.style.backgroundColor = buttonBg;
+        themeToggle.style.color = textColor;
+    }
+    
+    if (colorPickerToggle) {
+        colorPickerToggle.style.backgroundColor = buttonBg;
+        colorPickerToggle.style.color = textColor;
+    }
+}
+
+function adjustBrightness(hex, factor) {
+    // Convert hex to RGB
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    
+    // Calculate brightness
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    
+    // If dark background, lighten; if light background, darken
+    const multiplier = brightness < 128 ? 1 + factor : 1 - factor;
+    
+    const newR = Math.min(255, Math.max(0, Math.round(r * multiplier)));
+    const newG = Math.min(255, Math.max(0, Math.round(g * multiplier)));
+    const newB = Math.min(255, Math.max(0, Math.round(b * multiplier)));
+    
+    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
 }
 
 // Color Picker Management
@@ -180,6 +221,9 @@ function initializeColorPicker() {
             document.body.style.backgroundColor = bgColor;
             document.body.style.color = textColor;
             
+            // Update footer buttons
+            updateFooterButtonColors(bgColor, textColor);
+            
             updateColorPickerSelection();
         });
     });
@@ -188,6 +232,11 @@ function initializeColorPicker() {
     textColorOptions.forEach(option => {
         option.addEventListener('click', () => {
             const textColor = option.dataset.color;
+            
+            // Get current background color
+            const currentBgColor = currentMode === 'dark' 
+                ? localStorage.getItem('darkModeBg') || DEFAULT_DARK_BG
+                : localStorage.getItem('lightModeBg') || DEFAULT_LIGHT_BG;
             
             // Save text color for current mode
             if (currentMode === 'dark') {
@@ -198,6 +247,9 @@ function initializeColorPicker() {
             
             // Apply immediately
             document.body.style.color = textColor;
+            
+            // Update footer buttons
+            updateFooterButtonColors(currentBgColor, textColor);
             
             updateColorPickerSelection();
         });
