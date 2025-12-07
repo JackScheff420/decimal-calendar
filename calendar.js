@@ -97,17 +97,19 @@ function initializeColorPicker() {
     setAccentColor(savedColor);
     
     // Toggle color picker popup
-    colorPickerToggle.addEventListener('click', (e) => {
+    const toggleHandler = (e) => {
         e.stopPropagation();
         colorPickerPopup.classList.toggle('hidden');
-    });
+    };
+    colorPickerToggle.addEventListener('click', toggleHandler);
     
     // Close popup when clicking outside
-    document.addEventListener('click', (e) => {
+    const closeHandler = (e) => {
         if (!colorPickerPopup.contains(e.target) && e.target !== colorPickerToggle) {
             colorPickerPopup.classList.add('hidden');
         }
-    });
+    };
+    document.addEventListener('click', closeHandler);
     
     // Handle color selection
     colorOptions.forEach(option => {
@@ -128,10 +130,28 @@ function setAccentColor(color) {
 }
 
 function lightenColor(hex, percent) {
+    // Validate and normalize hex color
+    if (!hex || typeof hex !== 'string') {
+        return '#808080'; // Default fallback
+    }
+    
+    // Remove # if present
+    let cleanHex = hex.startsWith('#') ? hex.slice(1) : hex;
+    
+    // Handle 3-character hex colors (#FFF -> #FFFFFF)
+    if (cleanHex.length === 3) {
+        cleanHex = cleanHex.split('').map(c => c + c).join('');
+    }
+    
+    // Validate hex format
+    if (cleanHex.length !== 6 || !/^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+        return '#808080'; // Default fallback
+    }
+    
     // Convert hex to RGB
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
+    const r = parseInt(cleanHex.slice(0, 2), 16);
+    const g = parseInt(cleanHex.slice(2, 4), 16);
+    const b = parseInt(cleanHex.slice(4, 6), 16);
     
     // Increase each channel
     const newR = Math.min(255, Math.floor(r + (255 - r) * percent / 100));
