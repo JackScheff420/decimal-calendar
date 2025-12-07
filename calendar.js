@@ -86,6 +86,10 @@ function initializeTheme() {
     });
 }
 
+// Default colors
+const DEFAULT_BG_COLOR = '#FFFFFF';
+const DEFAULT_TEXT_COLOR = '#000000';
+
 // Color Picker Management
 function initializeColorPicker() {
     const colorPickerToggle = document.getElementById('colorPickerToggle');
@@ -94,8 +98,8 @@ function initializeColorPicker() {
     const textColorOptions = document.querySelectorAll('.text-color-option');
     
     // Load saved colors
-    const savedBgColor = localStorage.getItem('backgroundColor') || '#FFFFFF';
-    const savedTextColor = localStorage.getItem('textColor') || '#000000';
+    const savedBgColor = localStorage.getItem('backgroundColor') || DEFAULT_BG_COLOR;
+    const savedTextColor = localStorage.getItem('textColor') || DEFAULT_TEXT_COLOR;
     applyColors(savedBgColor, savedTextColor);
     
     // Toggle color picker popup
@@ -128,7 +132,7 @@ function initializeColorPicker() {
     textColorOptions.forEach(option => {
         option.addEventListener('click', () => {
             const textColor = option.dataset.color;
-            const currentBgColor = localStorage.getItem('backgroundColor') || '#FFFFFF';
+            const currentBgColor = localStorage.getItem('backgroundColor') || DEFAULT_BG_COLOR;
             applyColors(currentBgColor, textColor);
             localStorage.setItem('textColor', textColor);
         });
@@ -408,15 +412,16 @@ function highlightTodayDate(currentDate) {
             }, 600);
         }
     } else {
-        // Find the day element
+        // Find the current day element by matching its content
         const dayElements = document.querySelectorAll('.day-number');
-        if (dayElements[currentDate.day - 1]) {
-            const element = dayElements[currentDate.day - 1];
-            element.classList.add('highlight');
-            setTimeout(() => {
-                element.classList.remove('highlight');
-            }, 600);
-        }
+        dayElements.forEach(element => {
+            if (element.textContent.trim() === String(currentDate.day)) {
+                element.classList.add('highlight');
+                setTimeout(() => {
+                    element.classList.remove('highlight');
+                }, 600);
+            }
+        });
     }
 }
 
