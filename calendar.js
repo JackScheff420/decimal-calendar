@@ -67,28 +67,71 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeColorPicker();
 });
 
+// Default color schemes
+const DEFAULT_LIGHT_BG = '#FFFFFF';
+const DEFAULT_LIGHT_TEXT = '#000000';
+const DEFAULT_DARK_BG = '#111827';
+const DEFAULT_DARK_TEXT = '#F9FAFB';
+
+// Current mode state
+let currentMode = 'light';
+
 // Theme Management
 function initializeTheme() {
     const themeToggle = document.getElementById('themeToggle');
-    const html = document.documentElement;
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
     
     // Check for saved theme preference or default to light
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        html.classList.add('dark');
-    }
+    currentMode = localStorage.getItem('theme') || 'light';
+    applyThemeMode(currentMode);
+    
+    // Update icon visibility
+    updateThemeIcon(currentMode, sunIcon, moonIcon);
     
     // Toggle theme on button click
     themeToggle.addEventListener('click', () => {
-        html.classList.toggle('dark');
-        const newTheme = html.classList.contains('dark') ? 'dark' : 'light';
-        localStorage.setItem('theme', newTheme);
+        currentMode = currentMode === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', currentMode);
+        applyThemeMode(currentMode);
+        updateThemeIcon(currentMode, sunIcon, moonIcon);
+        updateColorPickerSelection();
     });
 }
 
-// Default colors
-const DEFAULT_BG_COLOR = '#FFFFFF';
-const DEFAULT_TEXT_COLOR = '#000000';
+function updateThemeIcon(mode, sunIcon, moonIcon) {
+    if (mode === 'dark') {
+        sunIcon.classList.remove('hidden');
+        sunIcon.classList.add('block');
+        moonIcon.classList.remove('block');
+        moonIcon.classList.add('hidden');
+    } else {
+        sunIcon.classList.remove('block');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+        moonIcon.classList.add('block');
+    }
+}
+
+function applyThemeMode(mode) {
+    const body = document.body;
+    
+    if (mode === 'dark') {
+        body.classList.add('dark-mode');
+        // Load dark mode colors
+        const darkBg = localStorage.getItem('darkModeBg') || DEFAULT_DARK_BG;
+        const darkText = localStorage.getItem('darkModeText') || DEFAULT_DARK_TEXT;
+        body.style.backgroundColor = darkBg;
+        body.style.color = darkText;
+    } else {
+        body.classList.remove('dark-mode');
+        // Load light mode colors
+        const lightBg = localStorage.getItem('lightModeBg') || DEFAULT_LIGHT_BG;
+        const lightText = localStorage.getItem('lightModeText') || DEFAULT_LIGHT_TEXT;
+        body.style.backgroundColor = lightBg;
+        body.style.color = lightText;
+    }
+}
 
 // Color Picker Management
 function initializeColorPicker() {
@@ -97,15 +140,16 @@ function initializeColorPicker() {
     const bgColorOptions = document.querySelectorAll('.bg-color-option');
     const textColorOptions = document.querySelectorAll('.text-color-option');
     
-    // Load saved colors
-    const savedBgColor = localStorage.getItem('backgroundColor') || DEFAULT_BG_COLOR;
-    const savedTextColor = localStorage.getItem('textColor') || DEFAULT_TEXT_COLOR;
-    applyColors(savedBgColor, savedTextColor);
+    // Initial selection update
+    updateColorPickerSelection();
     
     // Toggle color picker popup
     const toggleHandler = (e) => {
         e.stopPropagation();
         colorPickerPopup.classList.toggle('hidden');
+        if (!colorPickerPopup.classList.contains('hidden')) {
+            updateColorPickerSelection();
+        }
     };
     colorPickerToggle.addEventListener('click', toggleHandler);
     
@@ -122,9 +166,21 @@ function initializeColorPicker() {
         option.addEventListener('click', () => {
             const bgColor = option.dataset.bg;
             const textColor = option.dataset.text;
-            applyColors(bgColor, textColor);
-            localStorage.setItem('backgroundColor', bgColor);
-            localStorage.setItem('textColor', textColor);
+            
+            // Save colors for current mode
+            if (currentMode === 'dark') {
+                localStorage.setItem('darkModeBg', bgColor);
+                localStorage.setItem('darkModeText', textColor);
+            } else {
+                localStorage.setItem('lightModeBg', bgColor);
+                localStorage.setItem('lightModeText', textColor);
+            }
+            
+            // Apply immediately
+            document.body.style.backgroundColor = bgColor;
+            document.body.style.color = textColor;
+            
+            updateColorPickerSelection();
         });
     });
     
@@ -132,16 +188,59 @@ function initializeColorPicker() {
     textColorOptions.forEach(option => {
         option.addEventListener('click', () => {
             const textColor = option.dataset.color;
-            const currentBgColor = localStorage.getItem('backgroundColor') || DEFAULT_BG_COLOR;
-            applyColors(currentBgColor, textColor);
-            localStorage.setItem('textColor', textColor);
+            
+            // Save text color for current mode
+            if (currentMode === 'dark') {
+                localStorage.setItem('darkModeText', textColor);
+            } else {
+                localStorage.setItem('lightModeText', textColor);
+            }
+            
+            // Apply immediately
+            document.body.style.color = textColor;
+            
+            updateColorPickerSelection();
         });
     });
 }
 
-function applyColors(bgColor, textColor) {
-    document.body.style.backgroundColor = bgColor;
-    document.body.style.color = textColor;
+function updateColorPickerSelection() {
+    const bgColorOptions = document.querySelectorAll('.bg-color-option');
+    const textColorOptions = document.querySelectorAll('.text-color-option');
+    
+    // Get current colors based on mode
+    let currentBg, currentText;
+    if (currentMode === 'dark') {
+        currentBg = localStorage.getItem('darkModeBg') || DEFAULT_DARK_BG;
+        currentText = localStorage.getItem('darkModeText') || DEFAULT_DARK_TEXT;
+    } else {
+        currentBg = localStorage.getItem('lightModeBg') || DEFAULT_LIGHT_BG;
+        currentText = localStorage.getItem('lightModeText') || DEFAULT_LIGHT_TEXT;
+    }
+    
+    // Update background color selections
+    bgColorOptions.forEach(option => {
+        const indicator = option.querySelector('.selected-indicator');
+        if (option.dataset.bg === currentBg) {
+            option.classList.add('selected');
+            if (indicator) indicator.classList.remove('hidden');
+        } else {
+            option.classList.remove('selected');
+            if (indicator) indicator.classList.add('hidden');
+        }
+    });
+    
+    // Update text color selections
+    textColorOptions.forEach(option => {
+        const indicator = option.querySelector('.selected-indicator');
+        if (option.dataset.color === currentText) {
+            option.classList.add('selected');
+            if (indicator) indicator.classList.remove('hidden');
+        } else {
+            option.classList.remove('selected');
+            if (indicator) indicator.classList.add('hidden');
+        }
+    });
 }
 
 // Calculate current decimal date

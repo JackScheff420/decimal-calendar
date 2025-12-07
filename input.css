@@ -11,7 +11,7 @@
   }
   
   body {
-    @apply font-comfortaa font-light bg-white text-black dark:bg-gray-900 dark:text-white;
+    @apply font-comfortaa font-light;
   }
 }
 
@@ -135,5 +135,59 @@
   .extra-day-item.highlight::before {
     opacity: 0.3;
     animation: borderFadeOut 0.6s ease forwards;
+  }
+  
+  /* Footer button styling */
+  .theme-toggle-btn,
+  .color-picker-btn {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+  
+  .theme-toggle-btn:hover,
+  .color-picker-btn:hover {
+    background-color: #e5e7eb;
+  }
+  
+  /* Dark mode footer buttons */
+  body.dark-mode .theme-toggle-btn,
+  body.dark-mode .color-picker-btn {
+    background-color: #1f2937;
+    color: #f3f4f6;
+  }
+  
+  body.dark-mode .theme-toggle-btn:hover,
+  body.dark-mode .color-picker-btn:hover {
+    background-color: #374151;
+  }
+  
+  /* Color picker popup styling */
+  .color-picker-popup {
+    background-color: #ffffff;
+    color: #1f2937;
+    border-color: #e5e7eb;
+  }
+  
+  body.dark-mode .color-picker-popup {
+    background-color: #1f2937;
+    color: #f3f4f6;
+    border-color: #374151;
+  }
+  
+  /* Color option borders */
+  .bg-color-option,
+  .text-color-option {
+    border-color: transparent;
+  }
+  
+  .bg-color-option:hover,
+  .text-color-option:hover {
+    border-color: #9ca3af;
+  }
+  
+  .bg-color-option.selected,
+  .text-color-option.selected {
+    border-color: #3b82f6 !important;
+    border-width: 3px;
   }
 }
