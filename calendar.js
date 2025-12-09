@@ -657,17 +657,30 @@ function updateDetailContent() {
     const appointmentsContainer = document.getElementById('detailAppointments');
     const notesContainer = document.getElementById('detailNotes');
     
-    // Example placeholder content
-    appointmentsContainer.innerHTML = `
-        <li>Termin 1 (6.78 Uhr)</li>
-        <li>Unmittelbare Notizen zu Termin 1</li>
-    `;
+    // Clear existing content
+    appointmentsContainer.innerHTML = '';
+    notesContainer.innerHTML = '';
     
-    notesContainer.innerHTML = `
-        <li>Notiz 1</li>
-        <li>Notiz 2</li>
-        <li>Notiz 2 mit unterpunkt</li>
-    `;
+    // Example placeholder content - using DOM methods for safety
+    const appointment1 = document.createElement('li');
+    appointment1.textContent = 'Termin 1 (6.78 Uhr)';
+    appointmentsContainer.appendChild(appointment1);
+    
+    const appointment2 = document.createElement('li');
+    appointment2.textContent = 'Unmittelbare Notizen zu Termin 1';
+    appointmentsContainer.appendChild(appointment2);
+    
+    const note1 = document.createElement('li');
+    note1.textContent = 'Notiz 1';
+    notesContainer.appendChild(note1);
+    
+    const note2 = document.createElement('li');
+    note2.textContent = 'Notiz 2';
+    notesContainer.appendChild(note2);
+    
+    const note3 = document.createElement('li');
+    note3.textContent = 'Notiz 2 mit unterpunkt';
+    notesContainer.appendChild(note3);
 }
 
 // Update decimal time display
