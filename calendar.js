@@ -49,6 +49,7 @@ const EXTRA_DAY_NAMES = [
 // State
 let currentMonth = 0;
 let currentYear = DECIMAL_YEAR;
+let selectedDay = null; // { day: number, month: number, year: number, isExtraDay: boolean, extraDayIndex: number }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -417,7 +418,22 @@ function renderCalendar() {
                 extraDayElement.classList.add('current', '!opacity-100', 'font-medium');
             }
             
+            // Check if this extra day is selected
+            const isSelected = selectedDay && 
+                               selectedDay.isExtraDay && 
+                               selectedDay.extraDayIndex === i;
+            
+            if (isSelected) {
+                extraDayElement.classList.add('selected');
+            }
+            
             extraDayElement.textContent = i + 1;
+            
+            // Add click handler
+            extraDayElement.addEventListener('click', () => {
+                selectDay(i + 1, true, i);
+            });
+            
             extraDaysRow.appendChild(extraDayElement);
         }
         
@@ -438,7 +454,22 @@ function createDayElement(dayNumber, currentDate) {
         dayElement.classList.add('current', '!opacity-100', 'font-medium');
     }
     
+    // Check if this day is selected
+    const isSelected = selectedDay && 
+                       !selectedDay.isExtraDay && 
+                       selectedDay.month === currentMonth && 
+                       selectedDay.day === dayNumber;
+    
+    if (isSelected) {
+        dayElement.classList.add('selected');
+    }
+    
     dayElement.textContent = dayNumber;
+    
+    // Add click handler
+    dayElement.addEventListener('click', () => {
+        selectDay(dayNumber, false, -1);
+    });
     
     return dayElement;
 }
@@ -574,6 +605,69 @@ function highlightTodayDate(currentDate) {
             }
         });
     }
+}
+
+// Select a day and update detail view
+function selectDay(day, isExtraDay, extraDayIndex) {
+    selectedDay = {
+        day: day,
+        month: currentMonth,
+        year: currentYear,
+        isExtraDay: isExtraDay,
+        extraDayIndex: extraDayIndex
+    };
+    
+    // Update the calendar view to reflect selection
+    renderCalendar();
+    
+    // Update the detail view
+    updateDetailView();
+}
+
+// Update the detail view with selected day information
+function updateDetailView() {
+    const detailView = document.getElementById('detailView');
+    
+    if (!selectedDay) {
+        detailView.classList.add('hidden');
+        return;
+    }
+    
+    detailView.classList.remove('hidden');
+    
+    // Format the date string
+    let dateString = '';
+    if (selectedDay.isExtraDay) {
+        dateString = `${EXTRA_DAY_NAMES[selectedDay.extraDayIndex]} ${selectedDay.extraDayIndex + 1}.${selectedDay.month + 1}.${selectedDay.year}`;
+    } else {
+        const dayOfWeek = (selectedDay.day - 1) % DAYS_PER_WEEK;
+        dateString = `${DAY_NAMES[dayOfWeek]} ${selectedDay.day}.${selectedDay.month + 1}.${selectedDay.year}`;
+    }
+    
+    document.getElementById('detailDate').textContent = dateString;
+    
+    // Here we'll add logic to load/display events and notes for the selected day
+    // For now, we'll show placeholder content
+    updateDetailContent();
+}
+
+// Update detail content (appointments and notes)
+function updateDetailContent() {
+    // This is a placeholder. In a real application, this would load data from storage
+    const appointmentsContainer = document.getElementById('detailAppointments');
+    const notesContainer = document.getElementById('detailNotes');
+    
+    // Example placeholder content
+    appointmentsContainer.innerHTML = `
+        <li>Termin 1 (6.78 Uhr)</li>
+        <li>Unmittelbare Notizen zu Termin 1</li>
+    `;
+    
+    notesContainer.innerHTML = `
+        <li>Notiz 1</li>
+        <li>Notiz 2</li>
+        <li>Notiz 2 mit unterpunkt</li>
+    `;
 }
 
 // Update decimal time display

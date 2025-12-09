@@ -34,6 +34,33 @@
             <!-- Extra Days (for December) -->
             <div id="extraDays" class="mt-12 md:mt-16 transition-opacity duration-300"></div>
         </div>
+        
+        <!-- Detail View Container -->
+        <div id="detailView" class="detail-view-container mt-12 md:mt-16 hidden border rounded-lg p-6 transition-all duration-300">
+            <div class="detail-header mb-6">
+                <h2 id="detailDate" class="text-lg md:text-xl font-normal tracking-wide"></h2>
+            </div>
+            <div class="detail-content grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                <!-- Appointments Column -->
+                <div class="detail-appointments">
+                    <h3 class="text-sm md:text-base font-normal mb-3 opacity-70">Termine</h3>
+                    <ul id="detailAppointments" class="text-xs md:text-sm space-y-2 list-disc pl-5">
+                    </ul>
+                    <button class="add-entry-btn mt-4 text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity">
+                        <span class="text-lg">+</span> Neuer Termin
+                    </button>
+                </div>
+                <!-- Notes Column -->
+                <div class="detail-notes">
+                    <h3 class="text-sm md:text-base font-normal mb-3 opacity-70">Notizen</h3>
+                    <ul id="detailNotes" class="text-xs md:text-sm space-y-2 list-disc pl-5">
+                    </ul>
+                    <button class="add-entry-btn mt-4 text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity">
+                        <span class="text-lg">+</span> Neue Notiz
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Footer Controls -->
