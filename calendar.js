@@ -370,6 +370,13 @@ function initializeCalendar() {
     
     renderDayNames();
     renderCalendar();
+    
+    // Auto-select today's date on page load
+    if (currentDate.isExtraDay) {
+        selectDay(currentDate.extraDayIndex + 1, true, currentDate.extraDayIndex);
+    } else {
+        selectDay(currentDate.day, false, -1);
+    }
 }
 
 // Render day names header
@@ -600,13 +607,21 @@ function goToToday() {
             setTimeout(() => {
                 calendarGrid.classList.remove('slide-in-left', 'slide-in-right');
                 extraDaysContainer.classList.remove('slide-in-left', 'slide-in-right');
-                // Highlight today's date
-                highlightTodayDate(currentDate);
+                // Select today's date
+                if (currentDate.isExtraDay) {
+                    selectDay(currentDate.extraDayIndex + 1, true, currentDate.extraDayIndex);
+                } else {
+                    selectDay(currentDate.day, false, -1);
+                }
             }, 300);
         }, 300);
     } else {
-        // Already on current month, just highlight today
-        highlightTodayDate(currentDate);
+        // Already on current month, select today's date
+        if (currentDate.isExtraDay) {
+            selectDay(currentDate.extraDayIndex + 1, true, currentDate.extraDayIndex);
+        } else {
+            selectDay(currentDate.day, false, -1);
+        }
     }
 }
 
