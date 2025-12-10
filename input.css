@@ -150,13 +150,32 @@
   .extra-day-item.selected::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     border: 1px solid currentColor;
     border-radius: 0.25rem;
     pointer-events: none;
+  }
+  
+  /* Mobile: centered fixed-size box */
+  @media (max-width: 767px) {
+    .day-number.selected::after,
+    .extra-day-item.selected::after {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+  
+  /* Desktop: full-size box covering entire cell */
+  @media (min-width: 768px) {
+    .day-number.selected::after,
+    .extra-day-item.selected::after {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
   }
   
   .day-number.selected,
