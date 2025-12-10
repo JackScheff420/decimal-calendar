@@ -49,9 +49,35 @@ const EXTRA_DAY_NAMES = [
 // State
 let currentMonth = 0;
 let currentYear = DECIMAL_YEAR;
+let selectedDay = null; // { day: number, month: number, year: number, isExtraDay: boolean, extraDayIndex: number }
+
+// Storage for appointments and notes (per day)
+let dayData = {}; // { "day-month-year": { appointments: [], notes: [] } }
+
+// Load data from localStorage
+function loadData() {
+    const saved = localStorage.getItem('calendarData');
+    if (saved) {
+        dayData = JSON.parse(saved);
+    }
+}
+
+// Save data to localStorage
+function saveData() {
+    localStorage.setItem('calendarData', JSON.stringify(dayData));
+}
+
+// Get key for a specific day
+function getDayKey(day, month, year, isExtraDay, extraDayIndex) {
+    if (isExtraDay) {
+        return `extra-${extraDayIndex}-${month}-${year}`;
+    }
+    return `${day}-${month}-${year}`;
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    loadData();
     initializeCalendar();
     updateDecimalTime();
     setInterval(updateDecimalTime, 864); // Update approximately once per decimal second (~0.864 standard seconds)
@@ -65,6 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize color picker
     initializeColorPicker();
+    
+    // Add button event listeners
+    document.getElementById('addAppointmentBtn').addEventListener('click', addAppointment);
+    document.getElementById('addNoteBtn').addEventListener('click', addNote);
 });
 
 // Default color schemes
@@ -340,6 +370,13 @@ function initializeCalendar() {
     
     renderDayNames();
     renderCalendar();
+    
+    // Auto-select today's date on page load
+    if (currentDate.isExtraDay) {
+        selectDay(currentDate.extraDayIndex + 1, true, currentDate.extraDayIndex);
+    } else {
+        selectDay(currentDate.day, false, -1);
+    }
 }
 
 // Render day names header
@@ -353,7 +390,7 @@ function renderDayNames() {
         // Style the day name with large first letter and small rest
         const firstLetter = dayName.charAt(0);
         const restOfName = dayName.slice(1).toLowerCase();
-        dayElement.innerHTML = `<span class="text-2xl md:text-3xl">${firstLetter}</span><span class="text-xs md:text-sm">${restOfName}</span>`;
+        dayElement.innerHTML = `<span class="text-xl md:text-2xl">${firstLetter}</span><span class="text-xs">${restOfName}</span>`;
         
         dayNamesContainer.appendChild(dayElement);
     });
@@ -379,17 +416,17 @@ function renderCalendar() {
     // Render regular calendar days (4 weeks, 9 days each)
     for (let week = 0; week < WEEKS_PER_MONTH; week++) {
         const weekRow = document.createElement('div');
-        weekRow.className = 'flex items-center gap-4 md:gap-8';
+        weekRow.className = 'flex items-center gap-2 md:gap-4';
         
         // Add roman numeral
         const romanNumeral = document.createElement('div');
-        romanNumeral.className = 'w-4 md:w-8 text-center text-xs md:text-3xl';
+        romanNumeral.className = 'w-4 md:w-6 text-center text-xs md:text-2xl';
         romanNumeral.textContent = ROMAN_NUMERALS[week];
         weekRow.appendChild(romanNumeral);
         
         // Create day container
         const daysContainer = document.createElement('div');
-        daysContainer.className = 'grid grid-cols-9 gap-4 md:gap-8 flex-1 text-center';
+        daysContainer.className = 'grid grid-cols-9 gap-2 md:gap-4 flex-1 text-center';
         
         for (let dayInWeek = 0; dayInWeek < DAYS_PER_WEEK; dayInWeek++) {
             const dayNumber = week * DAYS_PER_WEEK + dayInWeek + 1;
@@ -406,7 +443,7 @@ function renderCalendar() {
         const extraDaysCount = isLeapYear() ? EXTRA_DAYS_LEAP : EXTRA_DAYS_NORMAL;
         
         const extraDaysRow = document.createElement('div');
-        extraDaysRow.className = 'flex justify-center items-center gap-8 md:gap-12 text-3xl md:text-4xl text-center';
+        extraDaysRow.className = 'flex justify-center items-center gap-4 md:gap-8 text-2xl md:text-3xl text-center';
         
         for (let i = 0; i < extraDaysCount; i++) {
             const extraDayElement = document.createElement('div');
@@ -417,7 +454,22 @@ function renderCalendar() {
                 extraDayElement.classList.add('current', '!opacity-100', 'font-medium');
             }
             
+            // Check if this extra day is selected
+            const isSelected = selectedDay && 
+                               selectedDay.isExtraDay && 
+                               selectedDay.extraDayIndex === i;
+            
+            if (isSelected) {
+                extraDayElement.classList.add('selected');
+            }
+            
             extraDayElement.textContent = i + 1;
+            
+            // Add click handler
+            extraDayElement.addEventListener('click', () => {
+                selectDay(i + 1, true, i);
+            });
+            
             extraDaysRow.appendChild(extraDayElement);
         }
         
@@ -428,7 +480,7 @@ function renderCalendar() {
 // Create a day element
 function createDayElement(dayNumber, currentDate) {
     const dayElement = document.createElement('div');
-    dayElement.className = 'day-number text-3xl md:text-5xl cursor-pointer transition-all duration-200 opacity-80 relative p-2 rounded';
+    dayElement.className = 'day-number text-2xl md:text-4xl cursor-pointer transition-all duration-200 opacity-80 relative p-1 rounded';
     
     const isCurrentDay = !currentDate.isExtraDay && 
                          currentDate.month === currentMonth && 
@@ -438,7 +490,22 @@ function createDayElement(dayNumber, currentDate) {
         dayElement.classList.add('current', '!opacity-100', 'font-medium');
     }
     
+    // Check if this day is selected
+    const isSelected = selectedDay && 
+                       !selectedDay.isExtraDay && 
+                       selectedDay.month === currentMonth && 
+                       selectedDay.day === dayNumber;
+    
+    if (isSelected) {
+        dayElement.classList.add('selected');
+    }
+    
     dayElement.textContent = dayNumber;
+    
+    // Add click handler
+    dayElement.addEventListener('click', () => {
+        selectDay(dayNumber, false, -1);
+    });
     
     return dayElement;
 }
@@ -540,13 +607,21 @@ function goToToday() {
             setTimeout(() => {
                 calendarGrid.classList.remove('slide-in-left', 'slide-in-right');
                 extraDaysContainer.classList.remove('slide-in-left', 'slide-in-right');
-                // Highlight today's date
-                highlightTodayDate(currentDate);
+                // Select today's date
+                if (currentDate.isExtraDay) {
+                    selectDay(currentDate.extraDayIndex + 1, true, currentDate.extraDayIndex);
+                } else {
+                    selectDay(currentDate.day, false, -1);
+                }
             }, 300);
         }, 300);
     } else {
-        // Already on current month, just highlight today
-        highlightTodayDate(currentDate);
+        // Already on current month, select today's date
+        if (currentDate.isExtraDay) {
+            selectDay(currentDate.extraDayIndex + 1, true, currentDate.extraDayIndex);
+        } else {
+            selectDay(currentDate.day, false, -1);
+        }
     }
 }
 
@@ -574,6 +649,259 @@ function highlightTodayDate(currentDate) {
             }
         });
     }
+}
+
+// Select a day and update detail view
+function selectDay(day, isExtraDay, extraDayIndex) {
+    selectedDay = {
+        day: day,
+        month: currentMonth,
+        year: currentYear,
+        isExtraDay: isExtraDay,
+        extraDayIndex: extraDayIndex
+    };
+    
+    // Update the calendar view to reflect selection
+    renderCalendar();
+    
+    // Update the detail view
+    updateDetailView();
+}
+
+// Update the detail view with selected day information
+function updateDetailView() {
+    const detailView = document.getElementById('detailView');
+    
+    if (!selectedDay) {
+        detailView.classList.add('hidden');
+        return;
+    }
+    
+    detailView.classList.remove('hidden');
+    
+    // Format the date string
+    let dateString = '';
+    if (selectedDay.isExtraDay) {
+        dateString = `${EXTRA_DAY_NAMES[selectedDay.extraDayIndex]} ${selectedDay.extraDayIndex + 1}.${selectedDay.month + 1}.${selectedDay.year}`;
+    } else {
+        const dayOfWeek = (selectedDay.day - 1) % DAYS_PER_WEEK;
+        dateString = `${DAY_NAMES[dayOfWeek]} ${selectedDay.day}.${selectedDay.month + 1}.${selectedDay.year}`;
+    }
+    
+    document.getElementById('detailDate').textContent = dateString;
+    
+    // Here we'll add logic to load/display events and notes for the selected day
+    // For now, we'll show placeholder content
+    updateDetailContent();
+}
+
+// Update detail content (appointments and notes)
+function updateDetailContent() {
+    const appointmentsContainer = document.getElementById('detailAppointments');
+    const notesContainer = document.getElementById('detailNotes');
+    
+    // Clear existing content
+    appointmentsContainer.innerHTML = '';
+    notesContainer.innerHTML = '';
+    
+    // Get data for selected day
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    const data = dayData[dayKey] || { appointments: [], notes: [] };
+    
+    // Render appointments
+    data.appointments.forEach((appointment, index) => {
+        const li = createEditableItem(appointment, 'appointment', index);
+        appointmentsContainer.appendChild(li);
+    });
+    
+    // Render notes
+    data.notes.forEach((note, index) => {
+        const li = createEditableItem(note, 'note', index);
+        notesContainer.appendChild(li);
+    });
+}
+
+// Create an editable list item
+function createEditableItem(text, type, index) {
+    const li = document.createElement('li');
+    li.className = 'editable-item flex items-center gap-2 group';
+    
+    const textSpan = document.createElement('span');
+    textSpan.className = 'flex-1';
+    textSpan.textContent = text;
+    
+    // Click on text to edit
+    textSpan.addEventListener('click', () => {
+        editItemInline(li, textSpan, text, type, index);
+    });
+    
+    // Delete button (X)
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn opacity-0 group-hover:opacity-60 hover:opacity-100 text-xs transition-opacity';
+    deleteBtn.textContent = '✕';
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteItem(type, index);
+    });
+    
+    li.appendChild(textSpan);
+    li.appendChild(deleteBtn);
+    
+    return li;
+}
+
+// Edit an item inline
+function editItemInline(listItem, textSpan, currentText, type, index) {
+    // Prevent multiple edits at once
+    if (textSpan.querySelector('input')) return;
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentText;
+    input.className = 'flex-1 bg-transparent border-none outline-none';
+    textSpan.textContent = '';
+    textSpan.appendChild(input);
+    input.focus();
+    input.select();
+    
+    const saveEdit = () => {
+        const newText = input.value.trim();
+        if (newText && newText !== currentText) {
+            updateItemText(type, index, newText);
+        }
+        updateDetailContent();
+    };
+    
+    input.addEventListener('blur', saveEdit);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            saveEdit();
+        } else if (e.key === 'Escape') {
+            updateDetailContent();
+        }
+    });
+}
+
+// Update item text
+function updateItemText(type, index, newText) {
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    if (!dayData[dayKey]) {
+        dayData[dayKey] = { appointments: [], notes: [] };
+    }
+    
+    if (type === 'appointment') {
+        dayData[dayKey].appointments[index] = newText;
+    } else {
+        dayData[dayKey].notes[index] = newText;
+    }
+    
+    saveData();
+}
+
+// Delete an item
+function deleteItem(type, index) {
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    if (!dayData[dayKey]) return;
+    
+    if (type === 'appointment') {
+        dayData[dayKey].appointments.splice(index, 1);
+    } else {
+        dayData[dayKey].notes.splice(index, 1);
+    }
+    
+    saveData();
+    updateDetailContent();
+}
+
+// Add new appointment
+function addAppointment() {
+    if (!selectedDay) return;
+    
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    if (!dayData[dayKey]) {
+        dayData[dayKey] = { appointments: [], notes: [] };
+    }
+    
+    // Add empty appointment and start editing immediately
+    const newIndex = dayData[dayKey].appointments.length;
+    dayData[dayKey].appointments.push('Neuer Termin');
+    saveData();
+    updateDetailContent();
+    
+    // Focus the newly added item for immediate editing
+    setTimeout(() => {
+        const appointmentsList = document.getElementById('detailAppointments');
+        const lastItem = appointmentsList.lastElementChild;
+        if (lastItem) {
+            const textSpan = lastItem.querySelector('span');
+            if (textSpan) {
+                editItemInline(lastItem, textSpan, 'Neuer Termin', 'appointment', newIndex);
+            }
+        }
+    }, 10);
+}
+
+// Add new note
+function addNote() {
+    if (!selectedDay) return;
+    
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    if (!dayData[dayKey]) {
+        dayData[dayKey] = { appointments: [], notes: [] };
+    }
+    
+    // Add empty note and start editing immediately
+    const newIndex = dayData[dayKey].notes.length;
+    dayData[dayKey].notes.push('Neue Notiz');
+    saveData();
+    updateDetailContent();
+    
+    // Focus the newly added item for immediate editing
+    setTimeout(() => {
+        const notesList = document.getElementById('detailNotes');
+        const lastItem = notesList.lastElementChild;
+        if (lastItem) {
+            const textSpan = lastItem.querySelector('span');
+            if (textSpan) {
+                editItemInline(lastItem, textSpan, 'Neue Notiz', 'note', newIndex);
+            }
+        }
+    }, 10);
 }
 
 // Update decimal time display

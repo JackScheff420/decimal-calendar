@@ -145,6 +145,75 @@
     font-weight: 800;
   }
   
+  /* Selected day styling - thin square outline */
+  .day-number.selected::after,
+  .extra-day-item.selected::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid currentColor;
+    border-radius: 0.25rem;
+    pointer-events: none;
+  }
+  
+  .day-number.selected,
+  .extra-day-item.selected {
+    opacity: 1 !important;
+  }
+  
+  /* Detail view styling */
+  .detail-view-container {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-color: currentColor;
+    border-width: 1px;
+  }
+  
+  body.dark-mode .detail-view-container {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .add-entry-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  /* Editable list items */
+  .editable-item {
+    padding: 2px 4px;
+    border-radius: 2px;
+    transition: background-color 0.2s;
+  }
+  
+  .editable-item:hover {
+    background-color: rgba(128, 128, 128, 0.1);
+  }
+  
+  .editable-item span {
+    cursor: pointer;
+  }
+  
+  .editable-item input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font: inherit;
+    color: inherit;
+  }
+  
+  .delete-btn {
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  
+  .delete-btn:hover {
+    color: #ef4444;
+  }
+  
   /* Today button hover effect with contrasting text */
   .today-btn:hover {
     background-color: rgba(0, 0, 0, 0.1);

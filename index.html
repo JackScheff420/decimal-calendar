@@ -6,37 +6,67 @@
     <title>Decimal Calendar</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="min-h-screen p-12 md:p-16 lg:p-24">
-    <div class="max-w-full mx-auto">
-        <!-- Header -->
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 mb-12 md:mb-16 text-sm md:text-base tracking-wider">
-            <div class="flex items-center gap-2">
-                <button id="prevMonth" class="nav-btn p-2 text-2xl hover:text-accent-hover transition-colors duration-200">‹</button>
-                <span id="monthName" class="font-normal"></span>
-                <span id="monthNumber" class="font-normal"></span>
-            </div>
-            <div id="yearDisplay" class="text-center font-normal"></div>
-            <div class="flex items-center gap-2">
-                <button id="todayBtn" class="today-btn border border-current px-3 py-1.5 md:px-4 md:py-2 rounded text-xs md:text-sm font-normal tracking-wider transition-all duration-300">Today</button>
-                <span id="decimalTime" class="font-normal"></span>
-                <button id="nextMonth" class="nav-btn p-2 text-2xl hover:text-accent-hover transition-colors duration-200">›</button>
-            </div>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="header-bar px-6 py-3 flex justify-between items-center text-sm tracking-wider">
+        <div class="flex items-center gap-3">
+            <button id="prevMonth" class="nav-btn p-1 text-xl hover:text-accent-hover transition-colors duration-200">‹</button>
+            <span id="monthName" class="font-normal"></span>
+            <span id="monthNumber" class="font-normal"></span>
+            <button id="nextMonth" class="nav-btn p-1 text-xl hover:text-accent-hover transition-colors duration-200">›</button>
         </div>
-        
-        <!-- Calendar Container -->
-        <div class="flex flex-col gap-8 md:gap-10">
-            <!-- Day Names Header -->
-            <div id="dayNames" class="grid grid-cols-9 gap-4 md:gap-8 pl-8 md:pl-12 text-center tracking-wide"></div>
+        <div id="yearDisplay" class="font-normal"></div>
+        <div class="flex items-center gap-3">
+            <button id="todayBtn" class="today-btn border border-current px-3 py-1 rounded text-xs font-normal tracking-wider transition-all duration-300">Today</button>
+            <span id="decimalTime" class="font-normal"></span>
+        </div>
+    </header>
+    
+    <div class="flex-1 overflow-auto p-6">
+        <div class="max-w-full mx-auto">
             
-            <!-- Calendar Grid -->
-            <div id="calendarGrid" class="flex flex-col gap-6 md:gap-8 transition-opacity duration-300"></div>
+            <!-- Calendar Container -->
+            <div class="flex flex-col gap-4">
+                <!-- Day Names Header -->
+                <div id="dayNames" class="grid grid-cols-9 gap-2 md:gap-4 pl-6 md:pl-8 text-center tracking-wide text-sm"></div>
+                
+                <!-- Calendar Grid -->
+                <div id="calendarGrid" class="flex flex-col gap-3 md:gap-4 transition-opacity duration-300"></div>
+                
+                <!-- Extra Days (for December) -->
+                <div id="extraDays" class="mt-6 transition-opacity duration-300"></div>
+            </div>
             
-            <!-- Extra Days (for December) -->
-            <div id="extraDays" class="mt-12 md:mt-16 transition-opacity duration-300"></div>
+            <!-- Detail View Container -->
+            <div id="detailView" class="detail-view-container mt-6 hidden border rounded-lg p-6 transition-all duration-300">
+                <div class="detail-header mb-4">
+                    <h2 id="detailDate" class="text-lg md:text-xl font-normal tracking-wide"></h2>
+                </div>
+                <div class="detail-content grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Appointments Column -->
+                    <div class="detail-appointments">
+                        <h3 class="text-base font-normal mb-3 opacity-70">Termine</h3>
+                        <ul id="detailAppointments" class="text-sm space-y-2 list-disc pl-5">
+                        </ul>
+                        <button id="addAppointmentBtn" class="add-entry-btn mt-3 text-sm opacity-60 hover:opacity-100 transition-opacity">
+                            <span class="text-lg">+</span> Neuer Termin
+                        </button>
+                    </div>
+                    <!-- Notes Column -->
+                    <div class="detail-notes">
+                        <h3 class="text-base font-normal mb-3 opacity-70">Notizen</h3>
+                        <ul id="detailNotes" class="text-sm space-y-2 list-disc pl-5">
+                        </ul>
+                        <button id="addNoteBtn" class="add-entry-btn mt-3 text-sm opacity-60 hover:opacity-100 transition-opacity">
+                            <span class="text-lg">+</span> Neue Notiz
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
-    <!-- Footer Controls -->
+    <!-- Footer Controls (Fixed Bottom Left) -->
     <div class="fixed bottom-6 left-6 flex gap-3 z-50">
         <!-- Dark/Light Mode Toggle -->
         <button id="themeToggle" class="theme-toggle-btn w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 shadow-md" aria-label="Toggle dark mode">
