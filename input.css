@@ -99,6 +99,13 @@
 }
 
 @layer components {
+  /* Header and Footer styling */
+  .header-bar,
+  .footer-bar {
+    border-color: currentColor;
+    border-opacity: 0.2;
+  }
+  
   .day-number::before,
   .extra-day-item::before {
     content: '';
@@ -179,6 +186,31 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
+  }
+  
+  /* Editable list items */
+  .editable-item {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 2px;
+    transition: background-color 0.2s;
+  }
+  
+  .editable-item:hover {
+    background-color: rgba(128, 128, 128, 0.1);
+  }
+  
+  .editable-item.editing {
+    background-color: rgba(128, 128, 128, 0.2);
+  }
+  
+  .editable-item input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font: inherit;
+    color: inherit;
   }
   
   /* Today button hover effect with contrasting text */

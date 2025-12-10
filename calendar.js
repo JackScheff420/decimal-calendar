@@ -51,8 +51,33 @@ let currentMonth = 0;
 let currentYear = DECIMAL_YEAR;
 let selectedDay = null; // { day: number, month: number, year: number, isExtraDay: boolean, extraDayIndex: number }
 
+// Storage for appointments and notes (per day)
+let dayData = {}; // { "day-month-year": { appointments: [], notes: [] } }
+
+// Load data from localStorage
+function loadData() {
+    const saved = localStorage.getItem('calendarData');
+    if (saved) {
+        dayData = JSON.parse(saved);
+    }
+}
+
+// Save data to localStorage
+function saveData() {
+    localStorage.setItem('calendarData', JSON.stringify(dayData));
+}
+
+// Get key for a specific day
+function getDayKey(day, month, year, isExtraDay, extraDayIndex) {
+    if (isExtraDay) {
+        return `extra-${extraDayIndex}-${month}-${year}`;
+    }
+    return `${day}-${month}-${year}`;
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    loadData();
     initializeCalendar();
     updateDecimalTime();
     setInterval(updateDecimalTime, 864); // Update approximately once per decimal second (~0.864 standard seconds)
@@ -66,6 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize color picker
     initializeColorPicker();
+    
+    // Add button event listeners
+    document.getElementById('addAppointmentBtn').addEventListener('click', addAppointment);
+    document.getElementById('addNoteBtn').addEventListener('click', addNote);
 });
 
 // Default color schemes
@@ -354,7 +383,7 @@ function renderDayNames() {
         // Style the day name with large first letter and small rest
         const firstLetter = dayName.charAt(0);
         const restOfName = dayName.slice(1).toLowerCase();
-        dayElement.innerHTML = `<span class="text-2xl md:text-3xl">${firstLetter}</span><span class="text-xs md:text-sm">${restOfName}</span>`;
+        dayElement.innerHTML = `<span class="text-xl md:text-2xl">${firstLetter}</span><span class="text-xs">${restOfName}</span>`;
         
         dayNamesContainer.appendChild(dayElement);
     });
@@ -380,17 +409,17 @@ function renderCalendar() {
     // Render regular calendar days (4 weeks, 9 days each)
     for (let week = 0; week < WEEKS_PER_MONTH; week++) {
         const weekRow = document.createElement('div');
-        weekRow.className = 'flex items-center gap-4 md:gap-8';
+        weekRow.className = 'flex items-center gap-2 md:gap-4';
         
         // Add roman numeral
         const romanNumeral = document.createElement('div');
-        romanNumeral.className = 'w-4 md:w-8 text-center text-xs md:text-3xl';
+        romanNumeral.className = 'w-4 md:w-6 text-center text-xs md:text-2xl';
         romanNumeral.textContent = ROMAN_NUMERALS[week];
         weekRow.appendChild(romanNumeral);
         
         // Create day container
         const daysContainer = document.createElement('div');
-        daysContainer.className = 'grid grid-cols-9 gap-4 md:gap-8 flex-1 text-center';
+        daysContainer.className = 'grid grid-cols-9 gap-2 md:gap-4 flex-1 text-center';
         
         for (let dayInWeek = 0; dayInWeek < DAYS_PER_WEEK; dayInWeek++) {
             const dayNumber = week * DAYS_PER_WEEK + dayInWeek + 1;
@@ -407,7 +436,7 @@ function renderCalendar() {
         const extraDaysCount = isLeapYear() ? EXTRA_DAYS_LEAP : EXTRA_DAYS_NORMAL;
         
         const extraDaysRow = document.createElement('div');
-        extraDaysRow.className = 'flex justify-center items-center gap-8 md:gap-12 text-3xl md:text-4xl text-center';
+        extraDaysRow.className = 'flex justify-center items-center gap-4 md:gap-8 text-2xl md:text-3xl text-center';
         
         for (let i = 0; i < extraDaysCount; i++) {
             const extraDayElement = document.createElement('div');
@@ -444,7 +473,7 @@ function renderCalendar() {
 // Create a day element
 function createDayElement(dayNumber, currentDate) {
     const dayElement = document.createElement('div');
-    dayElement.className = 'day-number text-3xl md:text-5xl cursor-pointer transition-all duration-200 opacity-80 relative p-2 rounded';
+    dayElement.className = 'day-number text-2xl md:text-4xl cursor-pointer transition-all duration-200 opacity-80 relative p-1 rounded';
     
     const isCurrentDay = !currentDate.isExtraDay && 
                          currentDate.month === currentMonth && 
@@ -653,7 +682,6 @@ function updateDetailView() {
 
 // Update detail content (appointments and notes)
 function updateDetailContent() {
-    // This is a placeholder. In a real application, this would load data from storage
     const appointmentsContainer = document.getElementById('detailAppointments');
     const notesContainer = document.getElementById('detailNotes');
     
@@ -661,26 +689,170 @@ function updateDetailContent() {
     appointmentsContainer.innerHTML = '';
     notesContainer.innerHTML = '';
     
-    // Example placeholder content - using DOM methods for safety
-    const appointment1 = document.createElement('li');
-    appointment1.textContent = 'Termin 1 (6.78 Uhr)';
-    appointmentsContainer.appendChild(appointment1);
+    // Get data for selected day
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
     
-    const appointment2 = document.createElement('li');
-    appointment2.textContent = 'Unmittelbare Notizen zu Termin 1';
-    appointmentsContainer.appendChild(appointment2);
+    const data = dayData[dayKey] || { appointments: [], notes: [] };
     
-    const note1 = document.createElement('li');
-    note1.textContent = 'Notiz 1';
-    notesContainer.appendChild(note1);
+    // Render appointments
+    data.appointments.forEach((appointment, index) => {
+        const li = createEditableItem(appointment, 'appointment', index);
+        appointmentsContainer.appendChild(li);
+    });
     
-    const note2 = document.createElement('li');
-    note2.textContent = 'Notiz 2';
-    notesContainer.appendChild(note2);
+    // Render notes
+    data.notes.forEach((note, index) => {
+        const li = createEditableItem(note, 'note', index);
+        notesContainer.appendChild(li);
+    });
+}
+
+// Create an editable list item
+function createEditableItem(text, type, index) {
+    const li = document.createElement('li');
+    li.className = 'editable-item';
+    li.textContent = text;
     
-    const note3 = document.createElement('li');
-    note3.textContent = 'Notiz 2 mit unterpunkt';
-    notesContainer.appendChild(note3);
+    // Double-click to edit
+    li.addEventListener('dblclick', () => {
+        editItem(li, text, type, index);
+    });
+    
+    // Right-click to delete
+    li.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        deleteItem(type, index);
+    });
+    
+    return li;
+}
+
+// Edit an item
+function editItem(element, currentText, type, index) {
+    element.classList.add('editing');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentText;
+    element.textContent = '';
+    element.appendChild(input);
+    input.focus();
+    input.select();
+    
+    const saveEdit = () => {
+        const newText = input.value.trim();
+        if (newText) {
+            updateItemText(type, index, newText);
+        }
+        updateDetailContent();
+    };
+    
+    input.addEventListener('blur', saveEdit);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            saveEdit();
+        } else if (e.key === 'Escape') {
+            updateDetailContent();
+        }
+    });
+}
+
+// Update item text
+function updateItemText(type, index, newText) {
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    if (!dayData[dayKey]) {
+        dayData[dayKey] = { appointments: [], notes: [] };
+    }
+    
+    if (type === 'appointment') {
+        dayData[dayKey].appointments[index] = newText;
+    } else {
+        dayData[dayKey].notes[index] = newText;
+    }
+    
+    saveData();
+}
+
+// Delete an item
+function deleteItem(type, index) {
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    if (!dayData[dayKey]) return;
+    
+    if (type === 'appointment') {
+        dayData[dayKey].appointments.splice(index, 1);
+    } else {
+        dayData[dayKey].notes.splice(index, 1);
+    }
+    
+    saveData();
+    updateDetailContent();
+}
+
+// Add new appointment
+function addAppointment() {
+    if (!selectedDay) return;
+    
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    if (!dayData[dayKey]) {
+        dayData[dayKey] = { appointments: [], notes: [] };
+    }
+    
+    const newAppointment = prompt('Neuer Termin (z.B. "Meeting (3.50 Uhr)")');
+    if (newAppointment && newAppointment.trim()) {
+        dayData[dayKey].appointments.push(newAppointment.trim());
+        saveData();
+        updateDetailContent();
+    }
+}
+
+// Add new note
+function addNote() {
+    if (!selectedDay) return;
+    
+    const dayKey = getDayKey(
+        selectedDay.day, 
+        selectedDay.month, 
+        selectedDay.year, 
+        selectedDay.isExtraDay, 
+        selectedDay.extraDayIndex
+    );
+    
+    if (!dayData[dayKey]) {
+        dayData[dayKey] = { appointments: [], notes: [] };
+    }
+    
+    const newNote = prompt('Neue Notiz');
+    if (newNote && newNote.trim()) {
+        dayData[dayKey].notes.push(newNote.trim());
+        saveData();
+        updateDetailContent();
+    }
 }
 
 // Update decimal time display
