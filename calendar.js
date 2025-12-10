@@ -716,37 +716,49 @@ function updateDetailContent() {
 // Create an editable list item
 function createEditableItem(text, type, index) {
     const li = document.createElement('li');
-    li.className = 'editable-item';
-    li.textContent = text;
+    li.className = 'editable-item flex items-center gap-2 group';
     
-    // Double-click to edit
-    li.addEventListener('dblclick', () => {
-        editItem(li, text, type, index);
+    const textSpan = document.createElement('span');
+    textSpan.className = 'flex-1';
+    textSpan.textContent = text;
+    
+    // Click on text to edit
+    textSpan.addEventListener('click', () => {
+        editItemInline(li, textSpan, text, type, index);
     });
     
-    // Right-click to delete
-    li.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
+    // Delete button (X)
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn opacity-0 group-hover:opacity-60 hover:opacity-100 text-xs transition-opacity';
+    deleteBtn.textContent = '✕';
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         deleteItem(type, index);
     });
+    
+    li.appendChild(textSpan);
+    li.appendChild(deleteBtn);
     
     return li;
 }
 
-// Edit an item
-function editItem(element, currentText, type, index) {
-    element.classList.add('editing');
+// Edit an item inline
+function editItemInline(listItem, textSpan, currentText, type, index) {
+    // Prevent multiple edits at once
+    if (textSpan.querySelector('input')) return;
+    
     const input = document.createElement('input');
     input.type = 'text';
     input.value = currentText;
-    element.textContent = '';
-    element.appendChild(input);
+    input.className = 'flex-1 bg-transparent border-none outline-none';
+    textSpan.textContent = '';
+    textSpan.appendChild(input);
     input.focus();
     input.select();
     
     const saveEdit = () => {
         const newText = input.value.trim();
-        if (newText) {
+        if (newText && newText !== currentText) {
             updateItemText(type, index, newText);
         }
         updateDetailContent();
@@ -823,12 +835,23 @@ function addAppointment() {
         dayData[dayKey] = { appointments: [], notes: [] };
     }
     
-    const newAppointment = prompt('Neuer Termin (z.B. "Meeting (3.50 Uhr)")');
-    if (newAppointment && newAppointment.trim()) {
-        dayData[dayKey].appointments.push(newAppointment.trim());
-        saveData();
-        updateDetailContent();
-    }
+    // Add empty appointment and start editing immediately
+    const newIndex = dayData[dayKey].appointments.length;
+    dayData[dayKey].appointments.push('Neuer Termin');
+    saveData();
+    updateDetailContent();
+    
+    // Focus the newly added item for immediate editing
+    setTimeout(() => {
+        const appointmentsList = document.getElementById('detailAppointments');
+        const lastItem = appointmentsList.lastElementChild;
+        if (lastItem) {
+            const textSpan = lastItem.querySelector('span');
+            if (textSpan) {
+                editItemInline(lastItem, textSpan, 'Neuer Termin', 'appointment', newIndex);
+            }
+        }
+    }, 10);
 }
 
 // Add new note
@@ -847,12 +870,23 @@ function addNote() {
         dayData[dayKey] = { appointments: [], notes: [] };
     }
     
-    const newNote = prompt('Neue Notiz');
-    if (newNote && newNote.trim()) {
-        dayData[dayKey].notes.push(newNote.trim());
-        saveData();
-        updateDetailContent();
-    }
+    // Add empty note and start editing immediately
+    const newIndex = dayData[dayKey].notes.length;
+    dayData[dayKey].notes.push('Neue Notiz');
+    saveData();
+    updateDetailContent();
+    
+    // Focus the newly added item for immediate editing
+    setTimeout(() => {
+        const notesList = document.getElementById('detailNotes');
+        const lastItem = notesList.lastElementChild;
+        if (lastItem) {
+            const textSpan = lastItem.querySelector('span');
+            if (textSpan) {
+                editItemInline(lastItem, textSpan, 'Neue Notiz', 'note', newIndex);
+            }
+        }
+    }, 10);
 }
 
 // Update decimal time display

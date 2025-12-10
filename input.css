@@ -99,13 +99,6 @@
 }
 
 @layer components {
-  /* Header and Footer styling */
-  .header-bar,
-  .footer-bar {
-    border-color: currentColor;
-    border-opacity: 0.2;
-  }
-  
   .day-number::before,
   .extra-day-item::before {
     content: '';
@@ -190,7 +183,6 @@
   
   /* Editable list items */
   .editable-item {
-    cursor: pointer;
     padding: 2px 4px;
     border-radius: 2px;
     transition: background-color 0.2s;
@@ -200,17 +192,26 @@
     background-color: rgba(128, 128, 128, 0.1);
   }
   
-  .editable-item.editing {
-    background-color: rgba(128, 128, 128, 0.2);
+  .editable-item span {
+    cursor: pointer;
   }
   
   .editable-item input {
-    width: 100%;
     background: transparent;
     border: none;
     outline: none;
     font: inherit;
     color: inherit;
+  }
+  
+  .delete-btn {
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  
+  .delete-btn:hover {
+    color: #ef4444;
   }
   
   /* Today button hover effect with contrasting text */

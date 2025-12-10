@@ -8,7 +8,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="header-bar border-b px-6 py-3 flex justify-between items-center text-sm tracking-wider">
+    <header class="header-bar px-6 py-3 flex justify-between items-center text-sm tracking-wider">
         <div class="flex items-center gap-3">
             <button id="prevMonth" class="nav-btn p-1 text-xl hover:text-accent-hover transition-colors duration-200">‹</button>
             <span id="monthName" class="font-normal"></span>
@@ -66,28 +66,28 @@
         </div>
     </div>
     
-    <!-- Footer Controls -->
-    <footer class="footer-bar border-t px-6 py-2 flex justify-center items-center gap-3">
+    <!-- Footer Controls (Fixed Bottom Left) -->
+    <div class="fixed bottom-6 left-6 flex gap-3 z-50">
         <!-- Dark/Light Mode Toggle -->
-        <button id="themeToggle" class="theme-toggle-btn w-8 h-8 flex items-center justify-center rounded transition-all duration-200" aria-label="Toggle dark mode">
-            <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button id="themeToggle" class="theme-toggle-btn w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 shadow-md" aria-label="Toggle dark mode">
+            <svg id="sunIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
             </svg>
-            <svg id="moonIcon" class="w-4 h-4 block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg id="moonIcon" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>
         </button>
         
         <!-- Color Picker Toggle -->
-        <button id="colorPickerToggle" class="color-picker-btn w-8 h-8 flex items-center justify-center rounded transition-all duration-200" aria-label="Choose colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button id="colorPickerToggle" class="color-picker-btn w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 shadow-md" aria-label="Choose colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
             </svg>
         </button>
-    </footer>
+    </div>
     
     <!-- Color Picker Popup -->
-    <div id="colorPickerPopup" class="color-picker-popup fixed bottom-12 left-1/2 transform -translate-x-1/2 hidden rounded-lg shadow-xl p-4 z-50 border">
+    <div id="colorPickerPopup" class="color-picker-popup fixed bottom-20 left-6 hidden rounded-lg shadow-xl p-4 z-50 border">
         <div class="text-sm font-medium mb-3">Color Scheme</div>
         
         <!-- Background Color Section -->
