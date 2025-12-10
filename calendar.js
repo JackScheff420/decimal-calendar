@@ -443,7 +443,7 @@ function renderCalendar() {
         const extraDaysCount = isLeapYear() ? EXTRA_DAYS_LEAP : EXTRA_DAYS_NORMAL;
         
         const extraDaysRow = document.createElement('div');
-        extraDaysRow.className = 'flex justify-center items-center gap-4 md:gap-8 text-2xl md:text-3xl text-center';
+        extraDaysRow.className = 'flex justify-center items-center gap-4 md:gap-8 text-xl md:text-3xl text-center';
         
         for (let i = 0; i < extraDaysCount; i++) {
             const extraDayElement = document.createElement('div');
@@ -480,7 +480,7 @@ function renderCalendar() {
 // Create a day element
 function createDayElement(dayNumber, currentDate) {
     const dayElement = document.createElement('div');
-    dayElement.className = 'day-number text-2xl md:text-4xl cursor-pointer transition-all duration-200 opacity-80 relative p-1 rounded';
+    dayElement.className = 'day-number text-xl md:text-4xl cursor-pointer transition-all duration-200 opacity-80 relative p-1 rounded';
     
     const isCurrentDay = !currentDate.isExtraDay && 
                          currentDate.month === currentMonth && 
