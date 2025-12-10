@@ -390,7 +390,7 @@ function renderDayNames() {
         // Style the day name with large first letter and small rest
         const firstLetter = dayName.charAt(0);
         const restOfName = dayName.slice(1).toLowerCase();
-        dayElement.innerHTML = `<span class="text-xl md:text-2xl">${firstLetter}</span><span class="text-xs">${restOfName}</span>`;
+        dayElement.innerHTML = `<span class="text-xl md:text-2xl">${firstLetter}</span><span class="hidden md:inline text-xs">${restOfName}</span>`;
         
         dayNamesContainer.appendChild(dayElement);
     });
